@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StudioRouteImport } from './routes/studio'
 import { Route as ReadBookIdRouteImport } from './routes/read.$bookId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioRoute = StudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReadBookIdRoute = ReadBookIdRouteImport.update({
@@ -25,27 +31,31 @@ const ReadBookIdRoute = ReadBookIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/studio': typeof StudioRoute
   '/read/$bookId': typeof ReadBookIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/studio': typeof StudioRoute
   '/read/$bookId': typeof ReadBookIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/studio': typeof StudioRoute
   '/read/$bookId': typeof ReadBookIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/read/$bookId'
+  fullPaths: '/' | '/studio' | '/read/$bookId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/read/$bookId'
-  id: '__root__' | '/' | '/read/$bookId'
+  to: '/' | '/studio' | '/read/$bookId'
+  id: '__root__' | '/' | '/studio' | '/read/$bookId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  StudioRoute: typeof StudioRoute
   ReadBookIdRoute: typeof ReadBookIdRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio': {
+      id: '/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/read/$bookId': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  StudioRoute: StudioRoute,
   ReadBookIdRoute: ReadBookIdRoute,
 }
 export const routeTree = rootRouteImport
