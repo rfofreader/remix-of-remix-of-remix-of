@@ -307,16 +307,7 @@ function ReaderPage() {
 
 
       <ReaderToolbar
-        visible={
-          chromeVisible &&
-          !menu &&
-          !tocOpen &&
-          !searchOpen &&
-          !displayOpen &&
-          !highlightsOpen &&
-          noteTarget === null &&
-          quoteText === null
-        }
+        visible={chromeVisible && !menu && noteTarget === null && quoteText === null}
         page={page}
         totalPages={totalPages}
         percent={percent}
