@@ -45,7 +45,7 @@ export const Route = createFileRoute("/read")({
   component: ReaderPage,
 });
 
-const CHARS_PER_PAGE = 900;
+const CHARS_PER_PAGE = 420;
 
 function ReaderPage() {
   const book = sampleBook;
