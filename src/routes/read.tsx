@@ -97,6 +97,16 @@ function ReaderPage() {
     if (hydrated) saveHighlights(book.id, highlights);
   }, [highlights, hydrated, book.id]);
 
+  /* ---------- theme tokens must reach portals (sheets/dialogs) ---------- */
+  useEffect(() => {
+    const root = document.documentElement;
+    const classes = ["paper-light", "paper-sepia", "paper-dark"];
+    root.classList.remove(...classes);
+    root.classList.add(`paper-${settings.theme}`);
+    document.body.style.backgroundColor = "var(--paper)";
+    return () => root.classList.remove(...classes);
+  }, [settings.theme]);
+
   /* ---------- progress + active chapter ---------- */
   useEffect(() => {
     const onScroll = () => {
