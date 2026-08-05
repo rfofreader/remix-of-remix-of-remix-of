@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { PopupPanel } from "@/components/reader/PopupPanel";
 import { Input } from "@/components/ui/input";
-import type { Book } from "@/data/sample-book";
+import type { Book } from "@/lib/book-content";
 
 interface Props {
   open: boolean;

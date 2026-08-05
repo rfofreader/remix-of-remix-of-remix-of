@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { sampleBook, totalChars, type Book } from "@/data/sample-book";
-import { getBook, seedBooks } from "@/lib/library";
+import { bookFromRow, totalChars, type Book } from "@/lib/book-content";
+import { fetchBook } from "@/lib/books-api";
+import { saveHistory } from "@/lib/books-api";
+import { useAuth } from "@/hooks/use-auth";
 import { ArrowRight } from "lucide-react";
 import {
   defaultSettings,
@@ -52,15 +54,30 @@ const CHARS_PER_PAGE = 420;
 
 function ReaderPage() {
   const { bookId } = Route.useParams();
-  const [book, setBook] = useState<Book>(
-    () => seedBooks.find((item) => item.id === bookId) ?? sampleBook,
-  );
+  const { user } = useAuth();
+  const [book, setBook] = useState<Book>({
+    id: bookId,
+    title: "",
+    author: "",
+    chapters: [],
+  });
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    const found = getBook(bookId);
-    if (found) setBook(found);
+    let active = true;
+    void fetchBook(bookId)
+      .then((row) => {
+        if (!active) return;
+        if (row) setBook(bookFromRow(row));
+        else setNotFound(true);
+      })
+      .catch(() => setNotFound(true));
+    return () => {
+      active = false;
+    };
   }, [bookId]);
   const surfaceRef = useRef<HTMLDivElement>(null);
+  const historyTimer = useRef<number | undefined>(undefined);
 
   const [settings, setSettings] = useState<ReaderSettings>(defaultSettings);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
@@ -126,6 +143,12 @@ function ReaderPage() {
       setProgress(ratio);
       saveProgress(book.id, window.scrollY);
       saveProgressRatio(book.id, ratio);
+      if (user) {
+        window.clearTimeout(historyTimer.current);
+        historyTimer.current = window.setTimeout(() => {
+          void saveHistory(user.id, book.id, ratio);
+        }, 1200);
+      }
 
       let current = book.chapters[0]?.id ?? "";
       for (const chapter of book.chapters) {
@@ -139,7 +162,7 @@ function ReaderPage() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [book]);
+  }, [book, user]);
 
 
   /* ---------- selection handling ---------- */
@@ -278,6 +301,19 @@ function ReaderPage() {
   };
 
   const menuText = activeHighlight?.text ?? selection?.text ?? "";
+
+  if (notFound) {
+    return (
+      <main dir="rtl" className="paper-sepia flex min-h-screen items-center justify-center bg-paper">
+        <div className="text-center">
+          <p className="font-reading text-lg text-ink">لم يُعثر على هذا الكتاب</p>
+          <Link to="/" className="mt-4 inline-block text-sm text-ink-soft underline">
+            العودة إلى المكتبة
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main

@@ -1,6 +1,6 @@
 import { Trash2, StickyNote, Quote } from "lucide-react";
 import { PopupPanel } from "@/components/reader/PopupPanel";
-import type { Book } from "@/data/sample-book";
+import type { Book } from "@/lib/book-content";
 import type { Highlight } from "@/lib/reader-storage";
 import { highlightColorClass } from "@/lib/reader-selection";
 
