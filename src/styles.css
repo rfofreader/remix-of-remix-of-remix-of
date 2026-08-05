@@ -153,6 +153,7 @@
   --color-chrome-ink: var(--chrome-ink);
   --color-panel: var(--panel);
   --color-panel-ink: var(--panel-ink);
+  --color-panel-rule: var(--panel-rule);
   --color-rule: var(--rule);
   --color-hl-yellow: var(--hl-yellow);
   --color-hl-green: var(--hl-green);
@@ -169,8 +170,6 @@
   --ink-soft: oklch(0.52 0.01 60);
   --chrome: oklch(0.2 0.01 60);
   --chrome-ink: oklch(0.98 0 0);
-  --panel: oklch(1 0 0);
-  --panel-ink: oklch(0.22 0.01 60);
   --rule: oklch(0.9 0.005 60);
 }
 
@@ -180,8 +179,6 @@
   --ink-soft: oklch(0.52 0.03 60);
   --chrome: oklch(0.31 0.03 55);
   --chrome-ink: oklch(0.96 0.02 85);
-  --panel: oklch(0.975 0.015 85);
-  --panel-ink: oklch(0.28 0.026 55);
   --rule: oklch(0.87 0.025 80);
 }
 
@@ -191,14 +188,16 @@
   --ink-soft: oklch(0.66 0 0);
   --chrome: oklch(0.3 0 0);
   --chrome-ink: oklch(0.95 0 0);
-  --panel: oklch(0.26 0 0);
-  --panel-ink: oklch(0.92 0 0);
   --rule: oklch(0.36 0 0);
 }
 
 .paper-light,
 .paper-sepia,
 .paper-dark {
+  /* لوحات القارئ داكنة دائماً كما في التصميم */
+  --panel: oklch(0.17 0 0);
+  --panel-ink: oklch(0.98 0 0);
+  --panel-rule: oklch(1 0 0 / 16%);
   --hl-yellow: oklch(0.92 0.15 95 / 55%);
   --hl-green: oklch(0.88 0.14 150 / 45%);
   --hl-blue: oklch(0.88 0.1 240 / 45%);

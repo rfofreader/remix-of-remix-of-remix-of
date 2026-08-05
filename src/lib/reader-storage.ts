@@ -21,7 +21,7 @@ export interface ReaderSettings {
 }
 
 export const defaultSettings: ReaderSettings = {
-  theme: "sepia",
+  theme: "light",
   fontSize: 20,
   lineHeight: 2,
   width: 640,

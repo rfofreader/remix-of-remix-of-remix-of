@@ -35,7 +35,9 @@ export function HighlightsSheet({
       <SheetContent
         side="bottom"
         dir="rtl"
-        className="max-h-[82vh] rounded-t-3xl border-rule bg-panel text-panel-ink font-ui"
+        hideClose
+        overlayClassName="bg-transparent"
+        className="max-h-[70vh] overflow-y-auto inset-x-3 bottom-24 rounded-3xl border border-panel-rule bg-panel p-5 text-panel-ink font-ui shadow-2xl"
       >
         <SheetHeader className="text-right">
           <SheetTitle className="font-ui text-panel-ink">
@@ -45,7 +47,7 @@ export function HighlightsSheet({
 
         <div className="mt-2 overflow-y-auto pb-8">
           {sorted.length === 0 ? (
-            <p className="py-10 text-center text-sm leading-7 text-ink-soft">
+            <p className="py-10 text-center text-sm leading-7 text-panel-ink/60">
               لا توجد تظليلات بعد.
               <br />
               اضغط مطوّلاً على النص واسحب لتحديد مقطع ثم اختر لوناً.
@@ -55,9 +57,9 @@ export function HighlightsSheet({
               {sorted.map((highlight) => (
                 <li
                   key={highlight.id}
-                  className="rounded-2xl border border-rule p-3 text-right"
+                  className="rounded-2xl border border-panel-rule p-3 text-right"
                 >
-                  <p className="text-xs text-ink-soft">{chapterTitle(highlight.chapterId)}</p>
+                  <p className="text-xs text-panel-ink/60">{chapterTitle(highlight.chapterId)}</p>
                   <button
                     onClick={() => onGoTo(highlight)}
                     className="mt-2 block w-full text-right"
@@ -71,28 +73,28 @@ export function HighlightsSheet({
                     </span>
                   </button>
                   {highlight.note ? (
-                    <p className="mt-2 rounded-xl bg-rule/40 px-3 py-2 text-sm leading-6">
+                    <p className="mt-2 rounded-xl bg-panel-rule px-3 py-2 text-sm leading-6">
                       {highlight.note}
                     </p>
                   ) : null}
-                  <div className="mt-3 flex items-center gap-1 text-ink-soft">
+                  <div className="mt-3 flex items-center gap-1 text-panel-ink/60">
                     <button
                       onClick={() => onNote(highlight)}
-                      className="rounded-lg p-2 transition-colors hover:bg-rule/50"
+                      className="rounded-lg p-2 transition-colors hover:bg-panel-rule"
                       aria-label="ملاحظة"
                     >
                       <StickyNote className="size-4" />
                     </button>
                     <button
                       onClick={() => onShare(highlight)}
-                      className="rounded-lg p-2 transition-colors hover:bg-rule/50"
+                      className="rounded-lg p-2 transition-colors hover:bg-panel-rule"
                       aria-label="بطاقة اقتباس"
                     >
                       <Quote className="size-4" />
                     </button>
                     <button
                       onClick={() => onDelete(highlight.id)}
-                      className="rounded-lg p-2 transition-colors hover:bg-rule/50"
+                      className="rounded-lg p-2 transition-colors hover:bg-panel-rule"
                       aria-label="حذف"
                     >
                       <Trash2 className="size-4" />
