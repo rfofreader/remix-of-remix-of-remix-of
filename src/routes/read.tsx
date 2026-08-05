@@ -287,7 +287,16 @@ function ReaderPage() {
       </div>
 
       <ReaderToolbar
-        visible={chromeVisible && !menu}
+        visible={
+          chromeVisible &&
+          !menu &&
+          !tocOpen &&
+          !searchOpen &&
+          !displayOpen &&
+          !highlightsOpen &&
+          noteTarget === null &&
+          quoteText === null
+        }
         page={page}
         totalPages={totalPages}
         percent={percent}
