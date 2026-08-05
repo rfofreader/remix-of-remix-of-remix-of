@@ -107,20 +107,13 @@ function ReaderPage() {
     return () => root.classList.remove(...classes);
   }, [settings.theme]);
 
-  /* ---------- progress + active chapter + auto-hiding chrome ---------- */
-  const lastScrollY = useRef(0);
+  /* ---------- progress + active chapter ---------- */
   useEffect(() => {
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
       setProgress(ratio);
       saveProgress(book.id, window.scrollY);
-
-      const delta = window.scrollY - lastScrollY.current;
-      if (Math.abs(delta) > 6) {
-        setChromeVisible(delta < 0 || window.scrollY < 24);
-        lastScrollY.current = window.scrollY;
-      }
 
       let current = book.chapters[0]?.id ?? "";
       for (const chapter of book.chapters) {
@@ -174,7 +167,7 @@ function ReaderPage() {
       dismissMenu();
       return;
     }
-    setChromeVisible(true);
+    setChromeVisible((current) => !current);
   };
 
   /* ---------- highlight actions ---------- */
@@ -297,14 +290,14 @@ function ReaderPage() {
       {/* تدرّج أسفل الشاشة يذوّب النص تحت شريط الأدوات */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-30 h-40"
+        className={`pointer-events-none fixed inset-x-0 bottom-0 z-30 h-40 transition-opacity duration-300 ${
+          chromeVisible ? "opacity-100" : "opacity-0"
+        }`}
         style={{
           background:
             "linear-gradient(to top, var(--paper) 18%, color-mix(in oklab, var(--paper) 78%, transparent) 55%, transparent 100%)",
         }}
       />
-
-
 
       <ReaderToolbar
         visible={chromeVisible && !menu && noteTarget === null && quoteText === null}
