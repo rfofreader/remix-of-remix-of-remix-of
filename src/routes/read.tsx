@@ -223,9 +223,11 @@ function ReaderPage() {
     if (!noteTarget) return;
     const note = noteDraft.trim();
     setHighlights((current) =>
-      current.map((item) =>
-        item.id === noteTarget.id ? { ...item, note: note || undefined } : item,
-      ),
+      current.map((item) => {
+        if (item.id !== noteTarget.id) return item;
+        const { note: _omit, ...rest } = item;
+        return note ? { ...rest, note } : rest;
+      }),
     );
     setNoteTarget(null);
     setNoteDraft("");
