@@ -409,12 +409,12 @@ function ReaderPage() {
       >
         <DialogContent
           dir="rtl"
-          className="rounded-3xl border-rule bg-panel text-panel-ink sm:max-w-md"
+          className="rounded-3xl border border-panel-rule bg-panel text-panel-ink sm:max-w-md"
         >
           <DialogHeader className="text-right">
             <DialogTitle className="text-panel-ink">ملاحظة</DialogTitle>
           </DialogHeader>
-          <p className="rounded-xl bg-rule/40 p-3 font-reading text-sm leading-7">
+          <p className="rounded-xl bg-panel-rule p-3 font-reading text-sm leading-7">
             {noteTarget?.text}
           </p>
           <Textarea
@@ -422,11 +422,11 @@ function ReaderPage() {
             value={noteDraft}
             onChange={(event) => setNoteDraft(event.target.value)}
             placeholder="اكتب ملاحظتك…"
-            className="min-h-28 border-rule bg-paper text-ink"
+            className="min-h-28 border-panel-rule bg-panel-rule text-panel-ink placeholder:text-panel-ink/50"
           />
           <button
             onClick={saveNote}
-            className="rounded-full bg-chrome py-3 text-sm font-medium text-chrome-ink"
+            className="rounded-full bg-panel-ink py-3 text-sm font-medium text-panel"
           >
             حفظ
           </button>
