@@ -167,7 +167,7 @@ function ReaderPage() {
       dismissMenu();
       return;
     }
-    setChromeVisible(true);
+    setChromeVisible((current) => !current);
   };
 
   /* ---------- highlight actions ---------- */
