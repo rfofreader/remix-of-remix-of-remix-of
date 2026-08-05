@@ -28,7 +28,7 @@ function offsetInParagraph(pEl: HTMLElement, node: Node, offset: number): number
   if (node.nodeType !== Node.TEXT_NODE) {
     let total = 0;
     for (let i = 0; i < offset && i < node.childNodes.length; i++) {
-      total += node.childNodes[i].textContent?.length ?? 0;
+      total += node.childNodes[i]?.textContent?.length ?? 0;
     }
     if (node === pEl) return total;
     return offsetInParagraph(pEl, node.parentNode ?? pEl, 0) + total;
