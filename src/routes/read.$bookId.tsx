@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { sampleBook, totalChars } from "@/data/sample-book";
+import { sampleBook, totalChars, type Book } from "@/data/sample-book";
+import { getBook, seedBooks } from "@/lib/library";
+import { ArrowRight } from "lucide-react";
 import {
   defaultSettings,
   loadHighlights,
@@ -26,7 +28,7 @@ import { QuoteCard } from "@/components/reader/QuoteCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
-export const Route = createFileRoute("/read")({
+export const Route = createFileRoute("/read/$bookId")({
   head: () => ({
     meta: [
       { title: "القارئ — أثر الهدوء" },
@@ -48,7 +50,15 @@ export const Route = createFileRoute("/read")({
 const CHARS_PER_PAGE = 420;
 
 function ReaderPage() {
-  const book = sampleBook;
+  const { bookId } = Route.useParams();
+  const [book, setBook] = useState<Book>(
+    () => seedBooks.find((item) => item.id === bookId) ?? sampleBook,
+  );
+
+  useEffect(() => {
+    const found = getBook(bookId);
+    if (found) setBook(found);
+  }, [bookId]);
   const surfaceRef = useRef<HTMLDivElement>(null);
 
   const [settings, setSettings] = useState<ReaderSettings>(defaultSettings);
@@ -272,6 +282,16 @@ function ReaderPage() {
       className={`paper-${settings.theme} min-h-screen bg-paper`}
       style={{ fontFamily: "var(--font-ui)" }}
     >
+      <Link
+        to="/"
+        aria-label="رجوع إلى المكتبة"
+        className={`fixed top-4 right-4 z-40 text-ink transition-opacity duration-300 ${
+          chromeVisible ? "opacity-70" : "pointer-events-none opacity-0"
+        }`}
+      >
+        <ArrowRight className="size-6" />
+      </Link>
+
       <div onClick={onSurfaceClick}>
         <ReaderSurface
           ref={surfaceRef}
