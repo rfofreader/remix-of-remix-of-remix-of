@@ -1,323 +1,411 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  ArrowRight,
-  BookOpen,
-  Eraser,
-  List,
-  Plus,
-  Quote,
-  Trash2,
-  WrapText,
-} from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import type { Book } from "@/data/sample-book";
+import { Plus, Save, Trash2 } from "lucide-react";
+import { AppPage } from "@/components/layout/AppPage";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/hooks/use-auth";
 import {
-  createBook,
-  deleteBook,
-  emptyChapter,
-  loadLibrary,
-  seedBooks,
-  textToParagraphs,
-  upsertBook,
-} from "@/lib/library";
+  fetchBooks,
+  fetchCategories,
+  removeBook,
+  removeCategory,
+  saveBook,
+  saveCategory,
+  type BookWithCategory,
+  type CategoryRow,
+} from "@/lib/books-api";
+import { newVolume, toVolumes, type BookVolume } from "@/lib/book-content";
 
 export const Route = createFileRoute("/studio")({
   head: () => ({
     meta: [
       { title: "لوحة الكتابة — أثر الهدوء" },
-      {
-        name: "description",
-        content:
-          "لوحة تحكم محلية لكتابة وتحرير الكتب: أضف الفصول، نسّق النص، واحفظ كل شيء على جهازك.",
-      },
+      { name: "description", content: "لوحة المشرف لإضافة الكتب والتصنيفات وتحرير محتواها." },
       { property: "og:title", content: "لوحة الكتابة — أثر الهدوء" },
-      {
-        property: "og:description",
-        content: "اكتب كتابك وحرّر فصوله بأدوات تنسيق بسيطة، والحفظ محلي بالكامل.",
-      },
+      { property: "og:description", content: "إدارة الكتب والتصنيفات." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "noindex" },
     ],
   }),
   component: StudioPage,
 });
 
+interface Draft {
+  id?: string;
+  title: string;
+  author: string;
+  publisher: string;
+  published_date: string;
+  page_count: string;
+  price: string;
+  description: string;
+  category_id: string;
+  volumes: BookVolume[];
+}
+
+const emptyDraft = (): Draft => ({
+  title: "",
+  author: "",
+  publisher: "",
+  published_date: "",
+  page_count: "",
+  price: "0",
+  description: "",
+  category_id: "",
+  volumes: [newVolume(1)],
+});
+
 function StudioPage() {
-  const [books, setBooks] = useState<Book[]>(seedBooks);
-  const [activeId, setActiveId] = useState<string>(seedBooks[0]?.id ?? "");
-  const [chapterIndex, setChapterIndex] = useState(0);
-  const [draft, setDraft] = useState("");
-  const areaRef = useRef<HTMLTextAreaElement>(null);
+  const { loading, user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [books, setBooks] = useState<BookWithCategory[]>([]);
+  const [categories, setCategories] = useState<CategoryRow[]>([]);
+  const [draft, setDraft] = useState<Draft>(emptyDraft);
+  const [activeVolume, setActiveVolume] = useState(0);
+  const [categoryName, setCategoryName] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.add("paper-light");
-    document.body.style.backgroundColor = "var(--paper)";
-    const list = loadLibrary();
-    setBooks(list);
-    setActiveId(list[0]?.id ?? "");
-    return () => root.classList.remove("paper-light");
-  }, []);
-
-  const book = useMemo(
-    () => books.find((item) => item.id === activeId) ?? books[0],
-    [books, activeId],
-  );
-  const chapter = book?.chapters[chapterIndex] ?? book?.chapters[0];
-
-  useEffect(() => {
-    setDraft(chapter ? chapter.paragraphs.map((p) => p.text).join("\n\n") : "");
-  }, [chapter?.id]);
-
-  if (!book || !chapter) return null;
-
-  const update = (next: Book) => {
-    setBooks(upsertBook(next));
+  const refresh = () => {
+    void fetchBooks().then(setBooks);
+    void fetchCategories().then(setCategories);
   };
 
-  const patchBook = (patch: Partial<Book>) => update({ ...book, ...patch });
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      void navigate({ to: "/auth" });
+      return;
+    }
+    if (isAdmin) refresh();
+  }, [loading, user, isAdmin, navigate]);
 
-  const patchChapter = (patch: Partial<typeof chapter>) =>
-    update({
-      ...book,
-      chapters: book.chapters.map((item, index) =>
-        index === chapterIndex ? { ...item, ...patch } : item,
+  const volume = draft.volumes[activeVolume] ?? draft.volumes[0];
+
+  const patchVolume = (patch: Partial<BookVolume>) => {
+    setDraft((current) => ({
+      ...current,
+      volumes: current.volumes.map((item, index) =>
+        index === activeVolume ? { ...item, ...patch } : item,
       ),
-    });
-
-  const saveDraft = () => {
-    patchChapter({ paragraphs: textToParagraphs(chapter.id, draft) });
-    toast.success("تم حفظ الفصل");
+    }));
   };
 
-  /* ---------- أدوات التنسيق ---------- */
-  const applyToSelection = (transform: (selected: string) => string) => {
-    const area = areaRef.current;
-    if (!area) return;
-    const start = area.selectionStart;
-    const end = area.selectionEnd;
-    const selected = draft.slice(start, end);
-    const replacement = transform(selected);
-    const next = draft.slice(0, start) + replacement + draft.slice(end);
-    setDraft(next);
-    requestAnimationFrame(() => {
-      area.focus();
-      area.setSelectionRange(start, start + replacement.length);
+  const editBook = (book: BookWithCategory) => {
+    const volumes = toVolumes(book.content);
+    setDraft({
+      id: book.id,
+      title: book.title,
+      author: book.author,
+      publisher: book.publisher ?? "",
+      published_date: book.published_date ?? "",
+      page_count: book.page_count ? String(book.page_count) : "",
+      price: String(book.price ?? 0),
+      description: book.description ?? "",
+      category_id: book.category_id ?? "",
+      volumes: volumes.length ? volumes : [newVolume(1)],
     });
+    setActiveVolume(0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const tools = [
-    {
-      label: "تنصيص",
-      icon: Quote,
-      run: () => applyToSelection((text) => `«${text || "نص"}»`),
-    },
-    {
-      label: "قائمة",
-      icon: List,
-      run: () =>
-        applyToSelection((text) =>
-          (text || "عنصر")
-            .split("\n")
-            .map((line) => (line.trim().startsWith("—") ? line : `— ${line.trim()}`))
-            .join("\n"),
-        ),
-    },
-    {
-      label: "فقرة جديدة",
-      icon: WrapText,
-      run: () => applyToSelection((text) => `${text}\n\n`),
-    },
-    {
-      label: "تنظيف المسافات",
-      icon: Eraser,
-      run: () =>
-        setDraft((current) =>
-          current
-            .split(/\n\s*\n/)
-            .map((block) => block.replace(/[ \t]+/g, " ").trim())
-            .filter(Boolean)
-            .join("\n\n"),
-        ),
-    },
-  ];
+  const submit = async () => {
+    if (!draft.title.trim() || !draft.author.trim()) {
+      toast.error("العنوان والمؤلف مطلوبان");
+      return;
+    }
+    setBusy(true);
+    try {
+      await saveBook({
+        ...(draft.id ? { id: draft.id } : {}),
+        title: draft.title.trim(),
+        author: draft.author.trim(),
+        publisher: draft.publisher.trim() || null,
+        published_date: draft.published_date.trim() || null,
+        page_count: draft.page_count ? Number(draft.page_count) : null,
+        description: draft.description.trim() || null,
+        price: Number(draft.price) || 0,
+        category_id: draft.category_id || null,
+        content: draft.volumes,
+      });
+      toast.success(draft.id ? "تم حفظ التعديلات" : "تمت إضافة الكتاب");
+      setDraft(emptyDraft());
+      setActiveVolume(0);
+      refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "تعذّر الحفظ");
+    } finally {
+      setBusy(false);
+    }
+  };
 
-  const words = draft.trim() ? draft.trim().split(/\s+/).length : 0;
+  const stats = useMemo(
+    () => ({
+      words: draft.volumes.reduce(
+        (sum, item) => sum + item.markdown.trim().split(/\s+/).filter(Boolean).length,
+        0,
+      ),
+    }),
+    [draft.volumes],
+  );
+
+  if (loading) {
+    return <AppPage title="لوحة الكتابة">{null}</AppPage>;
+  }
+
+  if (!isAdmin) {
+    return (
+      <AppPage title="لوحة الكتابة" subtitle="هذه الصفحة للمشرفين فقط">
+        <p className="mt-8 text-sm leading-7 text-ink-soft">
+          حسابك الحالي لا يملك صلاحية المشرف.
+        </p>
+        <Link to="/" className="mt-4 inline-block text-sm text-ink underline">
+          العودة إلى الرئيسية
+        </Link>
+      </AppPage>
+    );
+  }
 
   return (
-    <main
-      dir="rtl"
-      className="paper-light min-h-screen bg-paper px-5 pt-6 pb-16"
-      style={{ fontFamily: "var(--font-ui)" }}
-    >
-      <div className="mx-auto w-full max-w-2xl">
-        <header className="flex items-center justify-between gap-3">
-          <Link to="/" aria-label="رجوع" className="text-ink opacity-70">
-            <ArrowRight className="size-6" />
-          </Link>
-          <h1 className="font-reading text-xl text-ink">لوحة الكتابة</h1>
-          <Link
-            to="/read/$bookId"
-            params={{ bookId: book.id }}
-            aria-label="معاينة في القارئ"
-            className="text-ink opacity-70"
+    <AppPage title="لوحة الكتابة" subtitle={`${books.length} كتاب • ${stats.words} كلمة في المسودة`}>
+      {/* التصنيفات */}
+      <section className="mt-6 rounded-lg bg-panel p-4">
+        <h2 className="font-reading text-base text-ink">التصنيفات</h2>
+        <div className="mt-3 flex gap-2">
+          <Input
+            value={categoryName}
+            onChange={(event) => setCategoryName(event.target.value)}
+            placeholder="اسم تصنيف جديد"
+            className="h-10 rounded-lg border-rule bg-paper text-ink"
+          />
+          <button
+            onClick={async () => {
+              const name = categoryName.trim();
+              if (!name) return;
+              try {
+                await saveCategory({
+                  name,
+                  slug: name.replace(/\s+/g, "-"),
+                  description: null,
+                });
+                setCategoryName("");
+                refresh();
+              } catch {
+                toast.error("تعذّرت إضافة التصنيف");
+              }
+            }}
+            className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand text-brand-ink"
+            aria-label="إضافة تصنيف"
           >
-            <BookOpen className="size-5" />
-          </Link>
-        </header>
+            <Plus className="size-4" />
+          </button>
+        </div>
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {categories.map((item) => (
+            <li
+              key={item.id}
+              className="flex items-center gap-2 rounded-lg bg-paper px-3 py-1.5 text-xs text-ink"
+            >
+              {item.name}
+              <button
+                onClick={async () => {
+                  await removeCategory(item.id);
+                  refresh();
+                }}
+                aria-label={`حذف ${item.name}`}
+                className="text-ink-soft"
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-        {/* اختيار الكتاب */}
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          {books.map((item) => (
+      {/* بيانات الكتاب */}
+      <section className="mt-5 rounded-lg bg-panel p-4">
+        <h2 className="font-reading text-base text-ink">
+          {draft.id ? "تعديل كتاب" : "كتاب جديد"}
+        </h2>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <Field label="العنوان" value={draft.title} onChange={(title) => setDraft((d) => ({ ...d, title }))} full />
+          <Field label="المؤلف" value={draft.author} onChange={(author) => setDraft((d) => ({ ...d, author }))} />
+          <Field label="الناشر" value={draft.publisher} onChange={(publisher) => setDraft((d) => ({ ...d, publisher }))} />
+          <Field label="تاريخ النشر" value={draft.published_date} onChange={(published_date) => setDraft((d) => ({ ...d, published_date }))} />
+          <Field label="عدد الصفحات" value={draft.page_count} onChange={(page_count) => setDraft((d) => ({ ...d, page_count }))} />
+          <Field label="السعر" value={draft.price} onChange={(price) => setDraft((d) => ({ ...d, price }))} />
+          <label className="col-span-1 text-xs text-ink-soft">
+            التصنيف
+            <select
+              value={draft.category_id}
+              onChange={(event) => setDraft((d) => ({ ...d, category_id: event.target.value }))}
+              className="mt-1 h-10 w-full rounded-lg border border-rule bg-paper px-2 text-sm text-ink"
+            >
+              <option value="">بدون</option>
+              {categories.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <label className="mt-3 block text-xs text-ink-soft">
+          نبذة
+          <Textarea
+            value={draft.description}
+            onChange={(event) => setDraft((d) => ({ ...d, description: event.target.value }))}
+            className="mt-1 min-h-20 rounded-lg border-rule bg-paper text-ink"
+          />
+        </label>
+      </section>
+
+      {/* المجلدات والمحتوى */}
+      <section className="mt-5 rounded-lg bg-panel p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-reading text-base text-ink">المحتوى (ماركداون)</h2>
+          <button
+            onClick={() =>
+              setDraft((d) => {
+                const volumes = [...d.volumes, newVolume(d.volumes.length + 1)];
+                setActiveVolume(volumes.length - 1);
+                return { ...d, volumes };
+              })
+            }
+            className="flex items-center gap-1 rounded-lg bg-paper px-3 py-1.5 text-xs text-ink"
+          >
+            <Plus className="size-3.5" /> مجلد
+          </button>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {draft.volumes.map((item, index) => (
             <button
               key={item.id}
-              onClick={() => {
-                setActiveId(item.id);
-                setChapterIndex(0);
-              }}
-              className={`rounded-full border px-4 py-2 text-xs transition-colors ${
-                item.id === book.id
-                  ? "border-ink bg-ink text-paper"
-                  : "border-rule text-ink-soft hover:bg-rule/40"
+              onClick={() => setActiveVolume(index)}
+              className={`rounded-lg px-3 py-1.5 text-xs ${
+                index === activeVolume ? "bg-brand text-brand-ink" : "bg-paper text-ink-soft"
               }`}
             >
               {item.title}
             </button>
           ))}
-          <button
-            onClick={() => {
-              const created = createBook();
-              setBooks(upsertBook(created));
-              setActiveId(created.id);
-              setChapterIndex(0);
-            }}
-            className="flex items-center gap-1 rounded-full border border-rule px-4 py-2 text-xs text-ink-soft hover:bg-rule/40"
-          >
-            <Plus className="size-3.5" /> كتاب جديد
-          </button>
         </div>
 
-        {/* بيانات الكتاب */}
-        <section className="mt-6 space-y-3">
-          <input
-            value={book.title}
-            onChange={(event) => patchBook({ title: event.target.value })}
-            placeholder="عنوان الكتاب"
-            className="w-full rounded-2xl border border-rule bg-transparent px-4 py-3 font-reading text-lg text-ink outline-none focus:border-ink/40"
-          />
-          <input
-            value={book.author}
-            onChange={(event) => patchBook({ author: event.target.value })}
-            placeholder="المؤلف"
-            className="w-full rounded-2xl border border-rule bg-transparent px-4 py-3 text-sm text-ink outline-none focus:border-ink/40"
-          />
-        </section>
+        {volume ? (
+          <>
+            <Input
+              value={volume.title}
+              onChange={(event) => patchVolume({ title: event.target.value })}
+              placeholder="اسم المجلد"
+              className="mt-3 h-10 rounded-lg border-rule bg-paper text-ink"
+            />
+            <Textarea
+              value={volume.markdown}
+              onChange={(event) => patchVolume({ markdown: event.target.value })}
+              dir="rtl"
+              placeholder={"# عنوان رئيسي\n\n## عنوان فرعي\n\nنص الفقرة…"}
+              className="mt-2 min-h-64 rounded-lg border-rule bg-paper font-quran text-[15px] leading-8 text-ink"
+            />
+            <p className="pt-2 text-[11px] leading-5 text-ink-soft">
+              استخدم # للعنوان الرئيسي، ## للفرعي، ### للفرعي الصغير. الأسطر الفارغة تفصل الفقرات،
+              ويُبنى الفهرس تلقائياً من العناوين.
+            </p>
+            {draft.volumes.length > 1 ? (
+              <button
+                onClick={() =>
+                  setDraft((d) => {
+                    const volumes = d.volumes.filter((_item, index) => index !== activeVolume);
+                    setActiveVolume(0);
+                    return { ...d, volumes };
+                  })
+                }
+                className="mt-2 text-xs text-ink-soft underline"
+              >
+                حذف هذا المجلد
+              </button>
+            ) : null}
+          </>
+        ) : null}
 
-        {/* الفصول */}
-        <section className="mt-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-ink">الفصول</h2>
+        <div className="mt-4 flex gap-2">
+          <button
+            onClick={() => void submit()}
+            disabled={busy}
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand py-3 text-sm font-medium text-brand-ink disabled:opacity-60"
+          >
+            <Save className="size-4" />
+            {draft.id ? "حفظ التعديلات" : "نشر الكتاب"}
+          </button>
+          {draft.id ? (
             <button
               onClick={() => {
-                const next = [...book.chapters, emptyChapter(book.id, book.chapters.length + 1)];
-                update({ ...book, chapters: next });
-                setChapterIndex(next.length - 1);
+                setDraft(emptyDraft());
+                setActiveVolume(0);
               }}
-              className="flex items-center gap-1 text-xs text-ink-soft hover:text-ink"
+              className="rounded-lg bg-paper px-4 text-sm text-ink"
             >
-              <Plus className="size-3.5" /> إضافة فصل
+              جديد
             </button>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {book.chapters.map((item, index) => (
-              <button
-                key={item.id}
-                onClick={() => setChapterIndex(index)}
-                className={`rounded-xl px-3 py-2 text-xs transition-colors ${
-                  index === chapterIndex ? "bg-rule text-ink" : "text-ink-soft hover:bg-rule/40"
-                }`}
-              >
-                {index + 1}. {item.title}
+          ) : null}
+        </div>
+      </section>
+
+      {/* قائمة الكتب */}
+      <section className="mt-5">
+        <h2 className="font-reading text-base text-ink">الكتب المنشورة</h2>
+        <ul className="mt-3 space-y-2">
+          {books.map((book) => (
+            <li
+              key={book.id}
+              className="flex items-center gap-3 rounded-lg bg-panel px-3 py-3 text-sm text-ink"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">{book.title}</span>
+                <span className="block text-[11px] text-ink-soft">{book.author}</span>
+              </span>
+              <button onClick={() => editBook(book)} className="text-xs text-ink-soft underline">
+                تحرير
               </button>
-            ))}
-          </div>
-        </section>
-
-        {/* المحرر */}
-        <section className="mt-5 rounded-3xl border border-rule p-4">
-          <input
-            value={chapter.title}
-            onChange={(event) => patchChapter({ title: event.target.value })}
-            placeholder="عنوان الفصل"
-            className="w-full bg-transparent pb-3 font-reading text-lg text-ink outline-none"
-          />
-
-          <div className="flex flex-wrap items-center gap-1.5 border-y border-rule py-2">
-            {tools.map((tool) => (
               <button
-                key={tool.label}
-                onClick={tool.run}
-                title={tool.label}
-                aria-label={tool.label}
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] text-ink-soft transition-colors hover:bg-rule/50 hover:text-ink"
-              >
-                <tool.icon className="size-3.5" />
-                {tool.label}
-              </button>
-            ))}
-          </div>
-
-          <textarea
-            ref={areaRef}
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="اكتب هنا… اترك سطراً فارغاً لبدء فقرة جديدة."
-            className="mt-3 min-h-[45vh] w-full resize-y bg-transparent font-reading text-lg leading-9 text-ink outline-none"
-          />
-
-          <div className="flex items-center justify-between pt-3">
-            <span className="text-xs text-ink-soft tabular-nums">{words} كلمة</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  if (book.chapters.length <= 1) {
-                    toast.error("لا يمكن حذف الفصل الوحيد");
-                    return;
-                  }
-                  update({
-                    ...book,
-                    chapters: book.chapters.filter((_, index) => index !== chapterIndex),
-                  });
-                  setChapterIndex(0);
+                onClick={async () => {
+                  await removeBook(book.id);
+                  refresh();
                 }}
-                aria-label="حذف الفصل"
-                className="rounded-full p-2 text-ink-soft hover:text-destructive"
+                aria-label="حذف"
+                className="text-ink-soft"
               >
                 <Trash2 className="size-4" />
               </button>
-              <button
-                onClick={saveDraft}
-                className="rounded-full bg-chrome px-6 py-2.5 text-sm font-medium text-chrome-ink"
-              >
-                حفظ الفصل
-              </button>
-            </div>
-          </div>
-        </section>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </AppPage>
+  );
+}
 
-        <button
-          onClick={() => {
-            const next = deleteBook(book.id);
-            setBooks(next.length ? next : seedBooks);
-            setActiveId(next[0]?.id ?? "");
-            setChapterIndex(0);
-          }}
-          className="mt-6 text-xs text-ink-soft hover:text-destructive"
-        >
-          حذف هذا الكتاب من المكتبة
-        </button>
-      </div>
-    </main>
+function Field({
+  label,
+  value,
+  onChange,
+  full,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  full?: boolean;
+}) {
+  return (
+    <label className={`text-xs text-ink-soft ${full ? "col-span-2" : ""}`}>
+      {label}
+      <Input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="mt-1 h-10 rounded-lg border-rule bg-paper text-ink"
+      />
+    </label>
   );
 }

@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import type { Book } from "@/data/sample-book";
+import type { Book } from "@/lib/book-content";
 import type { Highlight, ReaderSettings } from "@/lib/reader-storage";
 import { segmentParagraph, highlightColorClass } from "@/lib/reader-selection";
 
@@ -18,7 +18,7 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
     <div
       ref={ref}
       dir="rtl"
-      className="mx-auto px-6 pt-16 pb-40 select-text"
+      className="reader-surface mx-auto px-6 pt-16 pb-40 select-text"
       style={{
         maxWidth: settings.width,
         fontSize: settings.fontSize,
@@ -32,13 +32,30 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
 
       {book.chapters.map((chapter) => (
         <section key={chapter.id} id={chapter.id} className="pb-10">
-          <h2
-            className="pb-6 font-ui font-semibold text-ink"
-            style={{ fontSize: settings.fontSize * 0.9 }}
-          >
-            {chapter.title}
-          </h2>
+          {book.chapters.length > 1 ? (
+            <p className="pb-6 text-center font-ui text-xs tracking-wide text-ink-soft">
+              {chapter.title}
+            </p>
+          ) : null}
           {chapter.paragraphs.map((paragraph) => {
+            if (paragraph.level) {
+              const size =
+                paragraph.level === 1 ? 1.15 : paragraph.level === 2 ? 1 : 0.9;
+              return (
+                <p
+                  key={paragraph.id}
+                  id={paragraph.id}
+                  data-pid={paragraph.id}
+                  data-cid={chapter.id}
+                  className={`font-reading font-semibold text-ink ${
+                    paragraph.level === 1 ? "pt-6 pb-5" : "pt-3 pb-3"
+                  }`}
+                  style={{ fontSize: settings.fontSize * size }}
+                >
+                  {paragraph.text}
+                </p>
+              );
+            }
             const paragraphHighlights = highlights.filter(
               (highlight) => highlight.paragraphId === paragraph.id,
             );
@@ -75,10 +92,6 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
           })}
         </section>
       ))}
-
-      <footer className="pt-4 pb-10 text-center font-ui text-xs text-ink-soft">
-        نهاية النص التجريبي
-      </footer>
     </div>
   );
 });

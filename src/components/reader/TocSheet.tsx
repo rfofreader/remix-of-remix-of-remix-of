@@ -1,15 +1,18 @@
 import { PopupPanel } from "@/components/reader/PopupPanel";
-import type { Book } from "@/data/sample-book";
+import type { Book, TocNode } from "@/lib/book-content";
+import { buildToc } from "@/lib/book-content";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   book: Book;
   activeChapterId: string;
-  onSelect: (chapterId: string) => void;
+  onSelect: (targetId: string) => void;
 }
 
 export function TocSheet({ open, onOpenChange, book, activeChapterId, onSelect }: Props) {
+  const tree = buildToc(book);
+
   return (
     <PopupPanel
       open={open}
@@ -17,26 +20,59 @@ export function TocSheet({ open, onOpenChange, book, activeChapterId, onSelect }
       title="المحتويات"
       subtitle={`${book.title} — ${book.author}`}
     >
-      <ul className="space-y-1">
-        {book.chapters.map((chapter, index) => {
-          const active = chapter.id === activeChapterId;
-          return (
-            <li key={chapter.id}>
-              <button
-                onClick={() => onSelect(chapter.id)}
-                className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-right transition-colors ${
-                  active ? "bg-panel-rule font-semibold" : "hover:bg-panel-rule"
-                }`}
-              >
-                <span className="w-5 shrink-0 text-xs text-panel-ink/45 tabular-nums">
-                  {index + 1}
-                </span>
-                <span className="flex-1 text-sm leading-6">{chapter.title}</span>
-              </button>
-            </li>
-          );
-        })}
+      <ul className="space-y-0.5">
+        {tree.map((node) => (
+          <TocItem
+            key={node.id}
+            node={node}
+            activeId={activeChapterId}
+            onSelect={onSelect}
+          />
+        ))}
       </ul>
     </PopupPanel>
+  );
+}
+
+function TocItem({
+  node,
+  activeId,
+  onSelect,
+}: {
+  node: TocNode;
+  activeId: string;
+  onSelect: (id: string) => void;
+}) {
+  const active = node.id === activeId;
+  const indent = node.level * 14;
+  return (
+    <li>
+      <button
+        onClick={() => onSelect(node.id)}
+        style={{ paddingInlineStart: 12 + indent }}
+        className={`flex w-full items-center gap-2 rounded-lg py-2.5 pl-3 text-right transition-colors ${
+          active ? "bg-panel-rule font-semibold" : "hover:bg-panel-rule"
+        }`}
+      >
+        <span
+          className={`flex-1 leading-6 ${
+            node.level === 0
+              ? "text-sm font-semibold"
+              : node.level === 1
+                ? "text-sm"
+                : "text-[13px] text-panel-ink/75"
+          }`}
+        >
+          {node.title}
+        </span>
+      </button>
+      {node.children.length ? (
+        <ul className="space-y-0.5">
+          {node.children.map((child) => (
+            <TocItem key={child.id} node={child} activeId={activeId} onSelect={onSelect} />
+          ))}
+        </ul>
+      ) : null}
+    </li>
   );
 }

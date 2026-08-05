@@ -62,7 +62,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.45rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -136,15 +136,6 @@
  * Reader design tokens (paper themes + highlight palette)
  * --------------------------------------------------------------- */
 
-@font-face {
-  font-family: "Uthman Taha Naskh";
-  src: url("/__l5e/assets-v1/0d976013-d39c-4c9c-92ee-d68a540c7f05/uthman-taha-naskh.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme inline {
   --color-paper: var(--paper);
   --color-ink: var(--ink);
@@ -159,9 +150,11 @@
   --color-hl-green: var(--hl-green);
   --color-hl-blue: var(--hl-blue);
   --color-hl-pink: var(--hl-pink);
-  --font-reading: "Amiri", "Noto Naskh Arabic", serif;
-  --font-quran: "Uthman Taha Naskh", "Amiri", "Noto Naskh Arabic", serif;
+  --font-reading: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-quran: "IBM Plex Sans Arabic", system-ui, sans-serif;
   --font-ui: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
 }
 
 .paper-light {
@@ -202,6 +195,15 @@
 
 .paper-light,
 .paper-sepia,
+.paper-dark,
+:root {
+  /* #3C2C21 */
+  --brand: oklch(0.295 0.031 62);
+  --brand-ink: oklch(0.965 0.015 85);
+}
+
+.paper-light,
+.paper-sepia,
 .paper-dark {
   --hl-yellow: oklch(0.92 0.15 95 / 55%);
   --hl-green: oklch(0.88 0.14 150 / 45%);
@@ -221,3 +223,14 @@
   }
 }
 
+
+/* منع قائمة التحديد الأصلية في iOS من التعارض مع أدوات التظليل */
+.reader-surface {
+  -webkit-touch-callout: none;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.reader-surface *::selection {
+  background: var(--hl-yellow);
+}
