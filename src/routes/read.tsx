@@ -290,14 +290,14 @@ function ReaderPage() {
       {/* تدرّج أسفل الشاشة يذوّب النص تحت شريط الأدوات */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-x-0 bottom-0 z-30 h-40"
+        className={`pointer-events-none fixed inset-x-0 bottom-0 z-30 h-40 transition-opacity duration-300 ${
+          chromeVisible ? "opacity-100" : "opacity-0"
+        }`}
         style={{
           background:
             "linear-gradient(to top, var(--paper) 18%, color-mix(in oklab, var(--paper) 78%, transparent) 55%, transparent 100%)",
         }}
       />
-
-
 
       <ReaderToolbar
         visible={chromeVisible && !menu && noteTarget === null && quoteText === null}
