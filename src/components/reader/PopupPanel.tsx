@@ -1,6 +1,24 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+
+/** ارتفاع المساحة المرئية فعلياً (يتقلّص عند ظهور لوحة المفاتيح). */
+function useViewportHeight() {
+  const [height, setHeight] = useState<number | null>(null);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+    const update = () => setHeight(viewport.height);
+    update();
+    viewport.addEventListener("resize", update);
+    viewport.addEventListener("scroll", update);
+    return () => {
+      viewport.removeEventListener("resize", update);
+      viewport.removeEventListener("scroll", update);
+    };
+  }, []);
+  return height;
+}
 
 interface Props {
   open: boolean;
