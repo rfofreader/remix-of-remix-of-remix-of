@@ -107,13 +107,20 @@ function ReaderPage() {
     return () => root.classList.remove(...classes);
   }, [settings.theme]);
 
-  /* ---------- progress + active chapter ---------- */
+  /* ---------- progress + active chapter + auto-hiding chrome ---------- */
+  const lastScrollY = useRef(0);
   useEffect(() => {
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
       setProgress(ratio);
       saveProgress(book.id, window.scrollY);
+
+      const delta = window.scrollY - lastScrollY.current;
+      if (Math.abs(delta) > 6) {
+        setChromeVisible(delta < 0 || window.scrollY < 24);
+        lastScrollY.current = window.scrollY;
+      }
 
       let current = book.chapters[0]?.id ?? "";
       for (const chapter of book.chapters) {
@@ -128,6 +135,7 @@ function ReaderPage() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [book]);
+
 
   /* ---------- selection handling ---------- */
   const positionFromRect = (rect: DOMRect): SelectionMenuState => {
