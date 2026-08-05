@@ -132,6 +132,73 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* ---------------------------------------------------------------
+ * Reader design tokens (paper themes + highlight palette)
+ * --------------------------------------------------------------- */
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-chrome: var(--chrome);
+  --color-chrome-ink: var(--chrome-ink);
+  --color-panel: var(--panel);
+  --color-panel-ink: var(--panel-ink);
+  --color-rule: var(--rule);
+  --color-hl-yellow: var(--hl-yellow);
+  --color-hl-green: var(--hl-green);
+  --color-hl-blue: var(--hl-blue);
+  --color-hl-pink: var(--hl-pink);
+  --font-reading: "Amiri", "Noto Naskh Arabic", serif;
+  --font-ui: "IBM Plex Sans Arabic", system-ui, sans-serif;
+}
+
+.paper-light {
+  --paper: oklch(0.995 0 0);
+  --ink: oklch(0.22 0.01 60);
+  --ink-soft: oklch(0.52 0.01 60);
+  --chrome: oklch(0.2 0.01 60);
+  --chrome-ink: oklch(0.98 0 0);
+  --panel: oklch(1 0 0);
+  --panel-ink: oklch(0.22 0.01 60);
+  --rule: oklch(0.9 0.005 60);
+}
+
+.paper-sepia {
+  --paper: oklch(0.955 0.018 85);
+  --ink: oklch(0.28 0.026 55);
+  --ink-soft: oklch(0.52 0.03 60);
+  --chrome: oklch(0.31 0.03 55);
+  --chrome-ink: oklch(0.96 0.02 85);
+  --panel: oklch(0.975 0.015 85);
+  --panel-ink: oklch(0.28 0.026 55);
+  --rule: oklch(0.87 0.025 80);
+}
+
+.paper-dark {
+  --paper: oklch(0.19 0.008 60);
+  --ink: oklch(0.9 0.008 80);
+  --ink-soft: oklch(0.66 0.01 80);
+  --chrome: oklch(0.28 0.01 60);
+  --chrome-ink: oklch(0.94 0.006 80);
+  --panel: oklch(0.24 0.009 60);
+  --panel-ink: oklch(0.92 0.008 80);
+  --rule: oklch(0.34 0.01 60);
+}
+
+.paper-light,
+.paper-sepia,
+.paper-dark {
+  --hl-yellow: oklch(0.92 0.15 95 / 55%);
+  --hl-green: oklch(0.88 0.14 150 / 45%);
+  --hl-blue: oklch(0.88 0.1 240 / 45%);
+  --hl-pink: oklch(0.88 0.11 355 / 45%);
+}
+
+@utility reader-fade {
+  mask-image: linear-gradient(to bottom, black 88%, transparent 100%);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -142,3 +209,4 @@
     color: var(--color-foreground);
   }
 }
+
