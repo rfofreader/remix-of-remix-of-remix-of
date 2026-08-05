@@ -15,13 +15,15 @@ export function TocSheet({ open, onOpenChange, book, activeChapterId, onSelect }
       <SheetContent
         side="bottom"
         dir="rtl"
-        className="max-h-[78vh] rounded-t-3xl border-rule bg-panel text-panel-ink font-ui"
+        hideClose
+        overlayClassName="bg-transparent"
+        className="max-h-[70vh] overflow-y-auto inset-x-3 bottom-24 rounded-3xl border border-panel-rule bg-panel p-5 text-panel-ink font-ui shadow-2xl"
       >
         <SheetHeader className="text-right">
           <SheetTitle className="font-ui text-panel-ink">المحتويات</SheetTitle>
         </SheetHeader>
         <div className="mt-2 overflow-y-auto pb-8">
-          <p className="px-1 pb-4 text-sm text-ink-soft">
+          <p className="px-1 pb-4 text-sm text-panel-ink/60">
             {book.title} — {book.author}
           </p>
           <ul className="space-y-1">
@@ -31,11 +33,11 @@ export function TocSheet({ open, onOpenChange, book, activeChapterId, onSelect }
                 <li key={chapter.id}>
                   <button
                     onClick={() => onSelect(chapter.id)}
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition-colors hover:bg-rule/40 ${
-                      active ? "bg-rule/60 font-semibold" : ""
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition-colors hover:bg-panel-rule ${
+                      active ? "bg-panel-rule font-semibold" : ""
                     }`}
                   >
-                    <span className="w-6 shrink-0 text-sm text-ink-soft">{index + 1}</span>
+                    <span className="w-6 shrink-0 text-sm text-panel-ink/60">{index + 1}</span>
                     <span className="flex-1">{chapter.title}</span>
                   </button>
                 </li>
