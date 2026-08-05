@@ -10,43 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ReadRouteImport } from './routes/read'
+import { Route as ReadBookIdRouteImport } from './routes/read.$bookId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReadRoute = ReadRouteImport.update({
-  id: '/read',
-  path: '/read',
+const ReadBookIdRoute = ReadBookIdRouteImport.update({
+  id: '/read/$bookId',
+  path: '/read/$bookId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/read': typeof ReadRoute
+  '/read/$bookId': typeof ReadBookIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/read': typeof ReadRoute
+  '/read/$bookId': typeof ReadBookIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/read': typeof ReadRoute
+  '/read/$bookId': typeof ReadBookIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/read'
+  fullPaths: '/' | '/read/$bookId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/read'
-  id: '__root__' | '/' | '/read'
+  to: '/' | '/read/$bookId'
+  id: '__root__' | '/' | '/read/$bookId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ReadRoute: typeof ReadRoute
+  ReadBookIdRoute: typeof ReadBookIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +58,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/read': {
-      id: '/read'
-      path: '/read'
-      fullPath: '/read'
-      preLoaderRoute: typeof ReadRouteImport
+    '/read/$bookId': {
+      id: '/read/$bookId'
+      path: '/read/$bookId'
+      fullPath: '/read/$bookId'
+      preLoaderRoute: typeof ReadBookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -70,8 +70,18 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ReadRoute: ReadRoute,
+  ReadBookIdRoute: ReadBookIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
