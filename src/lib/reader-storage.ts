@@ -78,3 +78,15 @@ export function saveProgress(bookId: string, scrollY: number) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(KEY(bookId, "progress"), String(Math.round(scrollY)));
 }
+
+export function loadProgressRatio(bookId: string): number {
+  if (typeof window === "undefined") return 0;
+  const raw = window.localStorage.getItem(KEY(bookId, "ratio"));
+  const value = raw ? Number(raw) : 0;
+  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
+}
+
+export function saveProgressRatio(bookId: string, ratio: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(KEY(bookId, "ratio"), String(ratio));
+}

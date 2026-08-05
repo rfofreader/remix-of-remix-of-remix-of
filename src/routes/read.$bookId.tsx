@@ -11,6 +11,7 @@ import {
   loadSettings,
   saveHighlights,
   saveProgress,
+  saveProgressRatio,
   saveSettings,
   type Highlight,
   type HighlightColor,
@@ -124,6 +125,7 @@ function ReaderPage() {
       const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
       setProgress(ratio);
       saveProgress(book.id, window.scrollY);
+      saveProgressRatio(book.id, ratio);
 
       let current = book.chapters[0]?.id ?? "";
       for (const chapter of book.chapters) {
