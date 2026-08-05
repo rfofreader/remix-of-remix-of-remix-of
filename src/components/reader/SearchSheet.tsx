@@ -49,7 +49,7 @@ export function SearchSheet({ open, onOpenChange, book, onSelect }: Props) {
         dir="rtl"
         hideClose
         overlayClassName="bg-transparent"
-        className="max-h-[70vh] overflow-y-auto inset-x-3 bottom-24 rounded-3xl border border-panel-rule bg-panel p-5 text-panel-ink font-ui shadow-2xl"
+        className="max-h-[70vh] overflow-y-auto inset-x-3 bottom-32 rounded-3xl border border-panel-rule bg-panel/75 backdrop-blur-2xl p-5 text-panel-ink font-ui shadow-2xl"
       >
         <SheetHeader className="text-right">
           <SheetTitle className="font-ui text-panel-ink">البحث في الكتاب</SheetTitle>
