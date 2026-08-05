@@ -12,7 +12,7 @@ interface Props {
 const themes: { id: ReaderTheme; label: string; swatch: string }[] = [
   { id: "light", label: "فاتح", swatch: "bg-white" },
   { id: "sepia", label: "سيبيا", swatch: "bg-[oklch(0.955_0.018_85)]" },
-  { id: "dark", label: "داكن", swatch: "bg-[oklch(0.19_0.008_60)]" },
+  { id: "dark", label: "داكن", swatch: "bg-[oklch(0.2213_0_0)]" },
 ];
 
 export function DisplaySettingsSheet({ open, onOpenChange, settings, onChange }: Props) {
