@@ -174,7 +174,7 @@ function ReaderPage() {
       dismissMenu();
       return;
     }
-    setChromeVisible((visible) => !visible);
+    setChromeVisible(true);
   };
 
   /* ---------- highlight actions ---------- */
@@ -293,6 +293,18 @@ function ReaderPage() {
           }}
         />
       </div>
+
+      {/* تدرّج أسفل الشاشة يذوّب النص تحت شريط الأدوات */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-30 h-40"
+        style={{
+          background:
+            "linear-gradient(to top, var(--paper) 18%, color-mix(in oklab, var(--paper) 78%, transparent) 55%, transparent 100%)",
+        }}
+      />
+
+
 
       <ReaderToolbar
         visible={
