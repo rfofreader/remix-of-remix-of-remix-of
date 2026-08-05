@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { BookOpen, Highlighter } from "lucide-react";
-import { sampleBook } from "@/data/sample-book";
-import { loadHighlights, loadProgress } from "@/lib/reader-storage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { PenLine } from "lucide-react";
+import type { Book } from "@/data/sample-book";
+import { loadLibrary, seedBooks } from "@/lib/library";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,20 +26,15 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const book = sampleBook;
-  const [percent, setPercent] = useState(0);
-  const [highlightCount, setHighlightCount] = useState(0);
+  const [books, setBooks] = useState<Book[]>(seedBooks);
 
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("paper-light");
-    setHighlightCount(loadHighlights(book.id).length);
-    const saved = loadProgress(book.id);
-    setPercent(saved > 0 ? Math.min(99, Math.max(1, Math.round((saved / 6000) * 100))) : 0);
+    document.body.style.backgroundColor = "var(--paper)";
+    setBooks(loadLibrary());
     return () => root.classList.remove("paper-light");
-  }, [book.id]);
-
-  const chapters = book.chapters.length;
+  }, []);
 
   return (
     <main
@@ -49,52 +43,43 @@ function HomePage() {
       style={{ fontFamily: "var(--font-ui)" }}
     >
       <div className="mx-auto w-full max-w-md">
-        <header className="pb-14 text-center">
-          <p className="font-ui text-xs tracking-[0.3em] text-ink-soft uppercase">مكتبتي</p>
+        <header className="pb-12 text-center">
+          <p className="text-xs tracking-[0.3em] text-ink-soft uppercase">مكتبتي</p>
           <h1 className="pt-4 font-reading text-4xl leading-relaxed text-ink">أثر الهدوء</h1>
-          <p className="pt-3 font-ui text-sm text-ink-soft">
-            اقرأ بهدوء. ظلّل ما يلمسك، ودوّن ما يبقى.
-          </p>
+          <p className="pt-3 text-sm text-ink-soft">اقرأ بهدوء، أو اكتب كتابك الخاص.</p>
         </header>
 
+        <ul className="divide-y divide-rule border-y border-rule">
+          {books.map((book) => (
+            <li key={book.id}>
+              <Link
+                to="/read/$bookId"
+                params={{ bookId: book.id }}
+                className="flex items-baseline justify-between gap-4 py-5 transition-opacity active:opacity-60"
+              >
+                <span>
+                  <span className="block font-reading text-xl leading-relaxed text-ink">
+                    {book.title}
+                  </span>
+                  <span className="block pt-1 text-xs text-ink-soft">{book.author}</span>
+                </span>
+                <span className="shrink-0 text-xs text-ink-soft tabular-nums">
+                  {book.chapters.length} فصول
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+
         <Link
-          to="/read"
-          className="block rounded-3xl border border-panel-rule bg-panel/75 p-6 text-panel-ink shadow-2xl backdrop-blur-2xl transition-transform active:scale-[0.99]"
+          to="/studio"
+          className="mt-10 flex items-center justify-center gap-2 rounded-full border border-rule py-3 text-sm text-ink transition-colors hover:bg-rule/40"
         >
-          <p className="font-reading text-2xl leading-relaxed">{book.title}</p>
-          <p className="pt-1 text-sm text-panel-ink/60">{book.author}</p>
-
-          <div className="mt-5 h-1 w-full overflow-hidden rounded-full bg-panel-rule">
-            <div
-              className="h-full rounded-full bg-panel-ink/80"
-              style={{ width: `${percent}%` }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between pt-4 text-xs text-panel-ink/60">
-            <span className="tabular-nums">
-              {percent > 0 ? `تابعت ${percent}%` : "لم تبدأ بعد"}
-            </span>
-            <span className="tabular-nums">{chapters} فصول</span>
-          </div>
-
-          <span className="mt-6 flex items-center justify-center gap-2 rounded-full bg-panel-ink py-3 text-sm font-medium text-panel">
-            <BookOpen className="size-4" />
-            {percent > 0 ? "متابعة القراءة" : "ابدأ القراءة"}
-          </span>
+          <PenLine className="size-4" />
+          لوحة الكتابة
         </Link>
 
-        <div className="pt-6">
-          <div className="flex items-center justify-between rounded-2xl border border-ink-soft/15 px-5 py-4 text-sm text-ink-soft">
-            <span className="flex items-center gap-2">
-              <Highlighter className="size-4" />
-              التظليلات والملاحظات
-            </span>
-            <span className="tabular-nums">{highlightCount}</span>
-          </div>
-        </div>
-
-        <footer className="pt-16 text-center font-ui text-xs text-ink-soft">
+        <footer className="pt-14 text-center text-xs text-ink-soft">
           كل شيء محفوظ على جهازك
         </footer>
       </div>
