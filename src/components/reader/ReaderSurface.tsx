@@ -48,7 +48,7 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
                 id={paragraph.id}
                 data-pid={paragraph.id}
                 data-cid={chapter.id}
-                className="pb-6 text-justify font-reading text-ink transition-colors"
+                className="pb-6 text-justify font-quran text-ink transition-colors"
               >
                 {segmentParagraph(paragraph.text, paragraphHighlights).map((segment, index) =>
                   segment.highlight ? (

@@ -136,6 +136,15 @@
  * Reader design tokens (paper themes + highlight palette)
  * --------------------------------------------------------------- */
 
+@font-face {
+  font-family: "Uthman Taha Naskh";
+  src: url("/__l5e/assets-v1/0d976013-d39c-4c9c-92ee-d68a540c7f05/uthman-taha-naskh.ttf")
+    format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-paper: var(--paper);
   --color-ink: var(--ink);
@@ -150,6 +159,7 @@
   --color-hl-blue: var(--hl-blue);
   --color-hl-pink: var(--hl-pink);
   --font-reading: "Amiri", "Noto Naskh Arabic", serif;
+  --font-quran: "Uthman Taha Naskh", "Amiri", "Noto Naskh Arabic", serif;
   --font-ui: "IBM Plex Sans Arabic", system-ui, sans-serif;
 }
 
@@ -176,14 +186,14 @@
 }
 
 .paper-dark {
-  --paper: oklch(0.19 0.008 60);
-  --ink: oklch(0.9 0.008 80);
-  --ink-soft: oklch(0.66 0.01 80);
-  --chrome: oklch(0.28 0.01 60);
-  --chrome-ink: oklch(0.94 0.006 80);
-  --panel: oklch(0.24 0.009 60);
-  --panel-ink: oklch(0.92 0.008 80);
-  --rule: oklch(0.34 0.01 60);
+  --paper: oklch(0.2213 0 0);
+  --ink: oklch(0.9 0 0);
+  --ink-soft: oklch(0.66 0 0);
+  --chrome: oklch(0.3 0 0);
+  --chrome-ink: oklch(0.95 0 0);
+  --panel: oklch(0.26 0 0);
+  --panel-ink: oklch(0.92 0 0);
+  --rule: oklch(0.36 0 0);
 }
 
 .paper-light,
@@ -195,9 +205,6 @@
   --hl-pink: oklch(0.88 0.11 355 / 45%);
 }
 
-@utility reader-fade {
-  mask-image: linear-gradient(to bottom, black 88%, transparent 100%);
-}
 
 @layer base {
   * {
