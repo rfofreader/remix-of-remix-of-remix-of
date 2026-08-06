@@ -1,6 +1,11 @@
 import { PopupPanel } from "@/components/reader/PopupPanel";
 import { Slider } from "@/components/ui/slider";
-import type { ReaderSettings, ReaderTheme } from "@/lib/reader-storage";
+import {
+  fontStack,
+  readerFonts,
+  type ReaderSettings,
+  type ReaderTheme,
+} from "@/lib/reader-storage";
 
 interface Props {
   open: boolean;
@@ -12,8 +17,9 @@ interface Props {
 const themes: { id: ReaderTheme; label: string; swatch: string }[] = [
   { id: "light", label: "فاتح", swatch: "bg-white" },
   { id: "sepia", label: "سيبيا", swatch: "bg-[oklch(0.955_0.018_85)]" },
-  { id: "dark", label: "داكن", swatch: "bg-[oklch(0.2213_0_0)]" },
+  { id: "dark", label: "داكن", swatch: "bg-[oklch(0.207_0_0)]" },
 ];
+
 
 export function DisplaySettingsSheet({ open, onOpenChange, settings, onChange }: Props) {
   return (
