@@ -1,34 +1,38 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Moon, Search, Sun, X } from "lucide-react";
 import { AppPage } from "@/components/layout/AppPage";
 import { BookCover } from "@/components/library/BookCover";
 import { fetchBooks, fetchHistory, type BookWithCategory } from "@/lib/books-api";
 import { useAuth } from "@/hooks/use-auth";
+import { useSiteTheme } from "@/hooks/use-site-theme";
 import { loadProgressRatio } from "@/lib/reader-storage";
+import logoAsset from "@/assets/logo-rufuf.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "الرئيسية — أثر الهدوء" },
-      {
-        name: "description",
-        content: "تابع من حيث توقفت، وتصفّح أحدث الكتب في مكتبة أثر الهدوء العربية.",
-      },
-      { property: "og:title", content: "الرئيسية — أثر الهدوء" },
-      { property: "og:description", content: "تابع القراءة من حيث توقفت في تجربة عربية هادئة." },
+      { title: "رفوف - قارئك" },
+      { name: "description", content: "حيث لا شيء سوى انت والنص" },
+      { property: "og:title", content: "رفوف - قارئك" },
+      { property: "og:description", content: "حيث لا شيء سوى انت والنص" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
   component: HomePage,
 });
 
 function HomePage() {
   const { user } = useAuth();
+  const { theme, toggle } = useSiteTheme();
+  const navigate = useNavigate();
   const [books, setBooks] = useState<BookWithCategory[]>([]);
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [continueId, setContinueId] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     void fetchBooks().then((list) => {
@@ -54,28 +58,52 @@ function HomePage() {
   const rest = books.filter((book) => book.id !== current?.id);
   const currentPercent = current ? Math.round((progress[current.id] ?? 0) * 100) : 0;
 
+  const results = useMemo(() => {
+    const q = query.trim();
+    if (!q) return [];
+    return books.filter(
+      (book) => book.title.includes(q) || book.author.includes(q),
+    );
+  }, [query, books]);
+
   return (
     <AppPage
-      title="أثر الهدوء"
-      subtitle="تابع من حيث توقفت"
-      action={
-        <Link
-          to="/library"
-          aria-label="المكتبة"
-          className="flex size-11 items-center justify-center rounded-lg bg-panel text-ink shadow-sm transition-transform active:scale-95"
-        >
-          <Search className="size-5" />
-        </Link>
+      header={
+        <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label="بحث"
+              className="flex size-12 items-center justify-center rounded-lg bg-panel text-ink shadow-sm transition-transform active:scale-95"
+            >
+              <Search className="size-5" />
+            </button>
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
+              className="flex size-12 items-center justify-center rounded-lg bg-panel text-ink shadow-sm transition-transform active:scale-95"
+            >
+              {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+            </button>
+          </div>
+          <img
+            src={logoAsset.url}
+            alt="رفوف — قارئ، ومكتبة، وصديقك"
+            className="logo-mark ms-auto h-14 w-auto object-contain"
+          />
+        </header>
       }
     >
       {current ? (
         <section className="mt-6 rounded-lg bg-panel p-4 shadow-[0_18px_40px_-24px_rgb(0_0_0/0.35)]">
           <div className="flex gap-4">
-            <BookCover book={current} className="h-[130px] w-[92px] shrink-0" />
+            <BookCover book={current} className="h-[150px] w-[106px] shrink-0" />
             <div className="min-w-0 flex-1 pt-1">
-              <h2 className="font-reading text-xl leading-snug text-ink">{current.title}</h2>
+              <h1 className="font-reading text-xl leading-snug text-ink">{current.title}</h1>
               <p className="pt-1 text-xs text-ink-soft">{current.author}</p>
-              <div className="pt-6">
+              <div className="pt-8">
                 <p className="pb-1 text-xs font-medium text-ink tabular-nums">{currentPercent}%</p>
                 <div className="h-1.5 overflow-hidden rounded-full bg-rule">
                   <div
@@ -127,6 +155,59 @@ function HomePage() {
             ))}
           </ul>
         </section>
+      ) : null}
+
+      {searchOpen ? (
+        <div
+          dir="rtl"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-ink/35 px-4 pt-16 backdrop-blur-[2px]"
+          onClick={() => setSearchOpen(false)}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className="flex max-h-[70vh] w-full max-w-md flex-col overflow-hidden rounded-lg bg-panel p-4 text-panel-ink shadow-2xl"
+          >
+            <div className="flex items-center gap-2">
+              <Search className="size-4 shrink-0 text-panel-ink/50" />
+              <input
+                autoFocus
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="ابحث عن كتاب أو مؤلف…"
+                className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none placeholder:text-panel-ink/45"
+              />
+              <button
+                onClick={() => setSearchOpen(false)}
+                aria-label="إغلاق"
+                className="rounded-full p-1.5 text-panel-ink/60"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <ul className="mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto">
+              {results.map((book) => (
+                <li key={book.id}>
+                  <button
+                    onClick={() => {
+                      setSearchOpen(false);
+                      void navigate({ to: "/book/$bookId", params: { bookId: book.id } });
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-right transition-colors hover:bg-panel-rule"
+                  >
+                    <BookCover book={book} className="h-12 w-9 shrink-0" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm">{book.title}</span>
+                      <span className="block text-xs text-panel-ink/55">{book.author}</span>
+                    </span>
+                  </button>
+                </li>
+              ))}
+              {query.trim() && results.length === 0 ? (
+                <li className="py-8 text-center text-sm text-panel-ink/55">لا توجد نتائج</li>
+              ) : null}
+            </ul>
+          </div>
+        </div>
       ) : null}
     </AppPage>
   );
