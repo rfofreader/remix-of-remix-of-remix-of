@@ -6,8 +6,7 @@ import { AppPage } from "@/components/layout/AppPage";
 import { BookCover } from "@/components/library/BookCover";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { fetchBook, toggleFavorite, type BookWithCategory } from "@/lib/books-api";
-import { bookFromRow, buildToc } from "@/lib/book-content";
+import { fetchBook, fetchBooks, toggleFavorite, type BookWithCategory } from "@/lib/books-api";
 
 export const Route = createFileRoute("/book/$bookId")({
   head: () => ({
@@ -120,5 +119,29 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="w-20 shrink-0">{label}</dt>
       <dd className="text-ink">{value}</dd>
     </div>
+  );
+}
+
+function BookRail({ title, books }: { title: string; books: BookWithCategory[] }) {
+  if (books.length === 0) return null;
+  return (
+    <section className="mt-8">
+      <h2 className="pb-3 font-reading text-lg text-ink">{title}</h2>
+      <ul className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
+        {books.map((book) => (
+          <li key={book.id} className="w-[104px] shrink-0">
+            <Link
+              to="/book/$bookId"
+              params={{ bookId: book.id }}
+              className="block transition-opacity active:opacity-70"
+            >
+              <BookCover book={book} className="aspect-[2/3] w-full" />
+              <p className="pt-2 line-clamp-2 text-xs leading-5 text-ink">{book.title}</p>
+              <p className="text-[11px] text-ink-soft">{book.author}</p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
