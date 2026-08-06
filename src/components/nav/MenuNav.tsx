@@ -60,49 +60,55 @@ export function MenuNav() {
       >
         {items.map((item, index) => {
           const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+          /* الأقرب إلى الزر يظهر أولاً ثم يصعد الباقي للأعلى */
+          const delay = open ? (items.length - index) * 35 : 0;
           return (
             <li
               key={item.to}
-              style={{ transitionDelay: `${open ? index * 35 : 0}ms` }}
-              className={`transition-all duration-200 ${
-                open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+              style={{ transitionDelay: `${delay}ms`, transformOrigin: "bottom center" }}
+              className={`transition-all duration-200 ease-out ${
+                open
+                  ? "translate-y-0 scale-100 opacity-100"
+                  : "translate-y-8 scale-90 opacity-0"
               }`}
             >
               <Link
                 to={item.to}
-                className={`flex items-center gap-2.5 rounded-lg py-2.5 pr-3 pl-4 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors ${
+                className={`flex items-center gap-2.5 rounded-2xl py-2.5 pr-4 pl-3 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors ${
                   active
                     ? "bg-brand text-brand-ink"
                     : "bg-panel text-panel-ink hover:bg-panel-rule"
                 }`}
               >
-                <item.icon className="size-4 shrink-0 opacity-80" />
                 {item.label}
+                <item.icon className="size-4 shrink-0 opacity-80" />
               </Link>
             </li>
           );
         })}
         <li
-          style={{ transitionDelay: open ? `${items.length * 35}ms` : "0ms" }}
-          className={`transition-all duration-200 ${
-            open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
+          style={{ transitionDelay: "0ms", transformOrigin: "bottom center" }}
+          className={`transition-all duration-200 ease-out ${
+            open ? "translate-y-0 scale-100 opacity-100" : "translate-y-8 scale-90 opacity-0"
           }`}
         >
-          <span className="flex items-center gap-2 rounded-lg bg-panel/70 px-3 py-1.5 text-[11px] text-panel-ink/60">
-            <Compass className="size-3.5" />
+          <span className="flex items-center gap-2 rounded-2xl bg-panel/70 px-3 py-1.5 text-[11px] text-panel-ink/60">
             تصفّح
+            <Compass className="size-3.5" />
           </span>
         </li>
       </ul>
+
 
       <button
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
         aria-expanded={open}
-        className="flex size-14 items-center justify-center rounded-xl bg-brand text-brand-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
+        className="flex size-14 items-center justify-center rounded-3xl bg-brand text-brand-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
       >
         {open ? <X className="size-6" /> : <Menu className="size-6" />}
       </button>
+
     </div>
   );
 }
