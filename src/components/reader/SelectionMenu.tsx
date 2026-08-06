@@ -1,5 +1,7 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { Copy, Highlighter, Quote, StickyNote, Trash2 } from "lucide-react";
 import type { HighlightColor } from "@/lib/reader-storage";
+
 
 export interface SelectionMenuState {
   top: number;
