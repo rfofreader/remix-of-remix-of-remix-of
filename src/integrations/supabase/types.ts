@@ -14,14 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      authors: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          name: string
+          photo_url: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          photo_url?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+        }
+        Relationships: []
+      }
       books: {
         Row: {
           author: string
+          author_id: string | null
           category_id: string | null
           content: Json
+          cover_url: string | null
           created_at: string
           created_by: string | null
           description: string | null
+          download_url: string | null
           id: string
           page_count: number | null
           price: number
@@ -32,11 +59,14 @@ export type Database = {
         }
         Insert: {
           author?: string
+          author_id?: string | null
           category_id?: string | null
           content?: Json
+          cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          download_url?: string | null
           id?: string
           page_count?: number | null
           price?: number
@@ -47,11 +77,14 @@ export type Database = {
         }
         Update: {
           author?: string
+          author_id?: string | null
           category_id?: string | null
           content?: Json
+          cover_url?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
+          download_url?: string | null
           id?: string
           page_count?: number | null
           price?: number
@@ -61,6 +94,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "books_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "books_category_id_fkey"
             columns: ["category_id"]
