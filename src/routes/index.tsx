@@ -1,13 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Moon, Search, Sun, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { AppPage } from "@/components/layout/AppPage";
 import { BookCover } from "@/components/library/BookCover";
 import { fetchBooks, fetchHistory, type BookWithCategory } from "@/lib/books-api";
 import { useAuth } from "@/hooks/use-auth";
-import { useSiteTheme } from "@/hooks/use-site-theme";
 import { loadProgressRatio } from "@/lib/reader-storage";
-import logoAsset from "@/assets/logo-rufuf.png.asset.json";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
