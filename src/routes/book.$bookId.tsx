@@ -27,10 +27,12 @@ function BookDetailPage() {
   const { bookId } = Route.useParams();
   const { user } = useAuth();
   const [row, setRow] = useState<BookWithCategory | null>(null);
+  const [all, setAll] = useState<BookWithCategory[]>([]);
   const [favorite, setFavorite] = useState(false);
 
   useEffect(() => {
     void fetchBook(bookId).then(setRow);
+    void fetchBooks().then(setAll);
   }, [bookId]);
 
   useEffect(() => {
@@ -44,10 +46,15 @@ function BookDetailPage() {
       .then(({ data }) => setFavorite(!!data));
   }, [user, bookId]);
 
+  const others = all.filter((item) => item.id !== bookId);
+  /* اقرأ أيضاً: من التصنيف نفسه — توصيات: بقية الكتب الحديثة */
+  const related = others.filter((item) => item.category_id && item.category_id === row?.category_id);
+  const relatedIds = new Set(related.map((item) => item.id));
+  const recommendations = others.filter((item) => !relatedIds.has(item.id)).slice(0, 8);
+
   if (!row) return <AppPage title="…">{null}</AppPage>;
 
-  const book = bookFromRow(row);
-  const toc = buildToc(book);
+
 
   const onToggleFavorite = async () => {
     if (!user) {
