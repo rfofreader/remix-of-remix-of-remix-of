@@ -51,7 +51,7 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
                   id={paragraph.id}
                   data-pid={paragraph.id}
                   data-cid={chapter.id}
-                  className={`font-reading font-semibold text-ink ${
+                  className={`font-semibold text-ink ${
                     paragraph.level === 1 ? "pt-6 pb-5" : "pt-3 pb-3"
                   }`}
                   style={{ fontSize: settings.fontSize * size }}
@@ -69,7 +69,7 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
                 id={paragraph.id}
                 data-pid={paragraph.id}
                 data-cid={chapter.id}
-                className="pb-6 text-justify font-quran text-ink transition-colors"
+                className="pb-6 text-justify text-ink transition-colors"
               >
                 {segmentParagraph(paragraph.text, paragraphHighlights).map((segment, index) =>
                   segment.highlight ? (
