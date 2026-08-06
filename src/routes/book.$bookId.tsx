@@ -100,23 +100,9 @@ function BookDetailPage() {
         </button>
       </div>
 
-      <section className="mt-8">
-        <h2 className="pb-3 font-reading text-lg text-ink">المحتويات</h2>
-        <ul className="space-y-1 text-sm text-ink">
-          {toc.map((node) => (
-            <li key={node.id}>
-              <span className="block py-1 font-semibold">{node.title}</span>
-              <ul className="space-y-0.5 pr-4 text-ink-soft">
-                {node.children.map((child) => (
-                  <li key={child.id} className="py-0.5 text-[13px]">
-                    {child.title}
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <BookRail title="توصيات" books={recommendations} />
+      <BookRail title="اقرأ أيضاً" books={related} />
+
     </AppPage>
   );
 }
