@@ -1,5 +1,7 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import { Copy, Highlighter, Quote, StickyNote, Trash2 } from "lucide-react";
 import type { HighlightColor } from "@/lib/reader-storage";
+
 
 export interface SelectionMenuState {
   top: number;
@@ -31,13 +33,28 @@ export function SelectionMenu({
   onCopy,
   onDelete,
 }: Props) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [left, setLeft] = useState<number | null>(null);
+
+  /* إبقاء الشريط بالكامل داخل حدود الشاشة مهما كان موضع التحديد */
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const margin = 10;
+    const width = element.offsetWidth;
+    const max = window.innerWidth - width - margin;
+    setLeft(Math.max(margin, Math.min(max, state.left - width / 2)));
+  }, [state.left, state.top]);
+
   return (
     <div
+      ref={ref}
       dir="rtl"
-      className="animate-in fade-in zoom-in-95 fixed z-50 -translate-x-1/2 duration-150"
-      style={{ top: state.top, left: state.left }}
+      className="animate-in fade-in zoom-in-95 fixed z-50 duration-150"
+      style={{ top: state.top, left: left ?? state.left, visibility: left === null ? "hidden" : "visible" }}
       onMouseDown={(event) => event.preventDefault()}
     >
+
       <div className="flex items-center gap-1 rounded-2xl bg-chrome px-2 py-1.5 text-chrome-ink shadow-xl">
         <div className="flex items-center gap-1 pl-1">
           {colors.map((color) => (

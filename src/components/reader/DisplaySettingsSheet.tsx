@@ -1,6 +1,11 @@
 import { PopupPanel } from "@/components/reader/PopupPanel";
 import { Slider } from "@/components/ui/slider";
-import type { ReaderSettings, ReaderTheme } from "@/lib/reader-storage";
+import {
+  fontStack,
+  readerFonts,
+  type ReaderSettings,
+  type ReaderTheme,
+} from "@/lib/reader-storage";
 
 interface Props {
   open: boolean;
@@ -12,8 +17,9 @@ interface Props {
 const themes: { id: ReaderTheme; label: string; swatch: string }[] = [
   { id: "light", label: "فاتح", swatch: "bg-white" },
   { id: "sepia", label: "سيبيا", swatch: "bg-[oklch(0.955_0.018_85)]" },
-  { id: "dark", label: "داكن", swatch: "bg-[oklch(0.2213_0_0)]" },
+  { id: "dark", label: "داكن", swatch: "bg-[oklch(0.207_0_0)]" },
 ];
+
 
 export function DisplaySettingsSheet({ open, onOpenChange, settings, onChange }: Props) {
   return (
@@ -38,6 +44,41 @@ export function DisplaySettingsSheet({ open, onOpenChange, settings, onChange }:
             ))}
           </div>
         </div>
+
+        <div>
+          <div className="flex items-center justify-between pb-3 text-sm">
+            <span className="text-panel-ink/55">نوع الخط</span>
+            <button
+              onClick={() => onChange({ ...settings, bold: !settings.bold })}
+              aria-label="خط عريض"
+              aria-pressed={settings.bold}
+              className={`size-8 rounded-full border text-sm font-bold transition-colors ${
+                settings.bold
+                  ? "border-panel-ink/60 bg-panel-ink text-panel"
+                  : "border-panel-rule text-panel-ink/70"
+              }`}
+            >
+              B
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {readerFonts.map((font) => (
+              <button
+                key={font.id}
+                onClick={() => onChange({ ...settings, font: font.id })}
+                style={{ fontFamily: fontStack(font.id) }}
+                className={`rounded-2xl border px-3 py-3 text-sm transition-colors ${
+                  settings.font === font.id
+                    ? "border-panel-ink/60 bg-panel-rule"
+                    : "border-panel-rule hover:bg-panel-rule"
+                }`}
+              >
+                {font.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
 
         <div>
           <div className="flex items-baseline justify-between pb-3 text-sm">

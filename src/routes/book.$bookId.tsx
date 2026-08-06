@@ -6,8 +6,7 @@ import { AppPage } from "@/components/layout/AppPage";
 import { BookCover } from "@/components/library/BookCover";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { fetchBook, toggleFavorite, type BookWithCategory } from "@/lib/books-api";
-import { bookFromRow, buildToc } from "@/lib/book-content";
+import { fetchBook, fetchBooks, toggleFavorite, type BookWithCategory } from "@/lib/books-api";
 
 export const Route = createFileRoute("/book/$bookId")({
   head: () => ({
@@ -27,10 +26,12 @@ function BookDetailPage() {
   const { bookId } = Route.useParams();
   const { user } = useAuth();
   const [row, setRow] = useState<BookWithCategory | null>(null);
+  const [all, setAll] = useState<BookWithCategory[]>([]);
   const [favorite, setFavorite] = useState(false);
 
   useEffect(() => {
     void fetchBook(bookId).then(setRow);
+    void fetchBooks().then(setAll);
   }, [bookId]);
 
   useEffect(() => {
@@ -44,10 +45,15 @@ function BookDetailPage() {
       .then(({ data }) => setFavorite(!!data));
   }, [user, bookId]);
 
+  const others = all.filter((item) => item.id !== bookId);
+  /* اقرأ أيضاً: من التصنيف نفسه — توصيات: بقية الكتب الحديثة */
+  const related = others.filter((item) => item.category_id && item.category_id === row?.category_id);
+  const relatedIds = new Set(related.map((item) => item.id));
+  const recommendations = others.filter((item) => !relatedIds.has(item.id)).slice(0, 8);
+
   if (!row) return <AppPage title="…">{null}</AppPage>;
 
-  const book = bookFromRow(row);
-  const toc = buildToc(book);
+
 
   const onToggleFavorite = async () => {
     if (!user) {
@@ -100,23 +106,9 @@ function BookDetailPage() {
         </button>
       </div>
 
-      <section className="mt-8">
-        <h2 className="pb-3 font-reading text-lg text-ink">المحتويات</h2>
-        <ul className="space-y-1 text-sm text-ink">
-          {toc.map((node) => (
-            <li key={node.id}>
-              <span className="block py-1 font-semibold">{node.title}</span>
-              <ul className="space-y-0.5 pr-4 text-ink-soft">
-                {node.children.map((child) => (
-                  <li key={child.id} className="py-0.5 text-[13px]">
-                    {child.title}
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <BookRail title="توصيات" books={recommendations} />
+      <BookRail title="اقرأ أيضاً" books={related} />
+
     </AppPage>
   );
 }
@@ -127,5 +119,29 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="w-20 shrink-0">{label}</dt>
       <dd className="text-ink">{value}</dd>
     </div>
+  );
+}
+
+function BookRail({ title, books }: { title: string; books: BookWithCategory[] }) {
+  if (books.length === 0) return null;
+  return (
+    <section className="mt-8">
+      <h2 className="pb-3 font-reading text-lg text-ink">{title}</h2>
+      <ul className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-1">
+        {books.map((book) => (
+          <li key={book.id} className="w-[104px] shrink-0">
+            <Link
+              to="/book/$bookId"
+              params={{ bookId: book.id }}
+              className="block transition-opacity active:opacity-70"
+            >
+              <BookCover book={book} className="aspect-[2/3] w-full" />
+              <p className="pt-2 line-clamp-2 text-xs leading-5 text-ink">{book.title}</p>
+              <p className="text-[11px] text-ink-soft">{book.author}</p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

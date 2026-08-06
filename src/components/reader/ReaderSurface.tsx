@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import type { Book } from "@/lib/book-content";
 import type { Highlight, ReaderSettings } from "@/lib/reader-storage";
+import { fontStack } from "@/lib/reader-storage";
 import { segmentParagraph, highlightColorClass } from "@/lib/reader-selection";
 
 interface Props {
@@ -23,8 +24,11 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
         maxWidth: settings.width,
         fontSize: settings.fontSize,
         lineHeight: settings.lineHeight,
+        fontFamily: fontStack(settings.font),
+        fontWeight: settings.bold ? 700 : 400,
       }}
     >
+
       <header className="pb-12 text-center">
         <h1 className="font-reading text-3xl leading-relaxed text-ink">{book.title}</h1>
         <p className="pt-2 font-ui text-sm text-ink-soft">{book.author}</p>
@@ -47,7 +51,7 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
                   id={paragraph.id}
                   data-pid={paragraph.id}
                   data-cid={chapter.id}
-                  className={`font-reading font-semibold text-ink ${
+                  className={`font-semibold text-ink ${
                     paragraph.level === 1 ? "pt-6 pb-5" : "pt-3 pb-3"
                   }`}
                   style={{ fontSize: settings.fontSize * size }}
@@ -65,7 +69,7 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
                 id={paragraph.id}
                 data-pid={paragraph.id}
                 data-cid={chapter.id}
-                className="pb-6 text-justify font-quran text-ink transition-colors"
+                className="pb-6 text-justify text-ink transition-colors"
               >
                 {segmentParagraph(paragraph.text, paragraphHighlights).map((segment, index) =>
                   segment.highlight ? (

@@ -62,7 +62,8 @@
 }
 
 :root {
-  --radius: 0.45rem;
+  --radius: 1.5rem;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -182,16 +183,18 @@
 }
 
 .paper-dark {
-  --paper: oklch(0.2213 0 0);
+  /* #1B1B1B */
+  --paper: oklch(0.207 0 0);
   --ink: oklch(0.9 0 0);
   --ink-soft: oklch(0.66 0 0);
   --chrome: oklch(0.3 0 0);
   --chrome-ink: oklch(0.95 0 0);
   --rule: oklch(0.36 0 0);
-  --panel: oklch(0.27 0 0);
+  --panel: oklch(0.26 0 0);
   --panel-ink: oklch(0.95 0 0);
   --panel-rule: oklch(1 0 0 / 14%);
 }
+
 
 .paper-light,
 .paper-sepia,
@@ -224,6 +227,21 @@
 }
 
 
+@font-face {
+  font-family: "Uthman Taha";
+  src: url("/__l5e/assets-v1/0d976013-d39c-4c9c-92ee-d68a540c7f05/uthman-taha-naskh.ttf") format("truetype");
+  font-display: swap;
+}
+
+/* الشعار: يظهر بلونه الأصلي في الوضع الفاتح، وأبيض في الوضع الداكن */
+.logo-mark {
+  transition: filter 200ms ease;
+}
+
+.paper-dark .logo-mark {
+  filter: brightness(0) invert(1) opacity(0.92);
+}
+
 /* منع قائمة التحديد الأصلية في iOS من التعارض مع أدوات التظليل */
 .reader-surface {
   -webkit-touch-callout: none;
@@ -231,6 +249,11 @@
   user-select: text;
 }
 
+.reader-surface * {
+  -webkit-touch-callout: none !important;
+}
+
 .reader-surface *::selection {
   background: var(--hl-yellow);
 }
+
