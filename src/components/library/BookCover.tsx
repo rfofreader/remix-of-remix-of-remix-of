@@ -16,10 +16,22 @@ export interface CoverBook {
   id: string;
   title: string;
   author: string;
+  cover_url?: string | null;
 }
 
-/** غلاف كتاب مُولَّد من العنوان (بدون صور). */
+/** غلاف الكتاب: صورة إن وُجدت، وإلا غلاف مُولَّد من العنوان. */
 export function BookCover({ book, className = "" }: { book: CoverBook; className?: string }) {
+  if (book.cover_url) {
+    return (
+      <img
+        src={book.cover_url}
+        alt={`غلاف ${book.title}`}
+        loading="lazy"
+        className={`overflow-hidden rounded-lg object-cover shadow-[0_8px_18px_-10px_rgb(0_0_0/0.5)] ${className}`}
+      />
+    );
+  }
+
   const palette = palettes[hash(book.id) % palettes.length];
   return (
     <div
