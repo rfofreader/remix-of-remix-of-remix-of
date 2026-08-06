@@ -108,7 +108,7 @@ function ReaderPage() {
 
   /* ---------- hydrate from local storage ---------- */
   useEffect(() => {
-    setSettings(loadSettings(book.id));
+    setSettings(loadSettings());
     setHighlights(loadHighlights(book.id));
     setHydrated(true);
     const saved = loadProgress(book.id);
@@ -118,8 +118,9 @@ function ReaderPage() {
   }, [book.id]);
 
   useEffect(() => {
-    if (hydrated) saveSettings(book.id, settings);
-  }, [settings, hydrated, book.id]);
+    if (hydrated) saveSettings(settings);
+  }, [settings, hydrated]);
+
 
   useEffect(() => {
     if (hydrated) saveHighlights(book.id, highlights);
