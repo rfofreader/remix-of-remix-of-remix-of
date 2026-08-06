@@ -70,6 +70,10 @@ function HomePage() {
       hideBack
       header={
         <header className="flex items-end justify-between gap-4 pt-6">
+          <div className="text-right">
+            <h1 className="font-reading text-4xl leading-tight font-semibold text-ink">رفوفي</h1>
+            <p className="pt-1 text-lg text-ink-soft">تابع من حيث توقفت</p>
+          </div>
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
@@ -78,11 +82,8 @@ function HomePage() {
           >
             <Search className="size-6" />
           </button>
-          <div className="text-left">
-            <h1 className="font-reading text-4xl leading-tight font-semibold text-ink">رفوفي</h1>
-            <p className="pt-1 text-lg text-ink-soft">تابع من حيث توقفت</p>
-          </div>
         </header>
+
       }
     >
 
