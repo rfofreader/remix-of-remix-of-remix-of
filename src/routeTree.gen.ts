@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as HighlightsRouteImport } from './routes/highlights'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as StudioRouteImport } from './routes/studio'
@@ -37,6 +38,11 @@ const AuthRoute = AuthRouteImport.update({
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HighlightsRoute = HighlightsRouteImport.update({
+  id: '/highlights',
+  path: '/highlights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibraryRoute = LibraryRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/categories': typeof CategoriesRoute
+  '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/categories': typeof CategoriesRoute
+  '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/categories': typeof CategoriesRoute
+  '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/categories'
+    | '/highlights'
     | '/library'
     | '/store'
     | '/studio'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/categories'
+    | '/highlights'
     | '/library'
     | '/store'
     | '/studio'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/categories'
+    | '/highlights'
     | '/library'
     | '/store'
     | '/studio'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   CategoriesRoute: typeof CategoriesRoute
+  HighlightsRoute: typeof HighlightsRoute
   LibraryRoute: typeof LibraryRoute
   StoreRoute: typeof StoreRoute
   StudioRoute: typeof StudioRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/highlights': {
+      id: '/highlights'
+      path: '/highlights'
+      fullPath: '/highlights'
+      preLoaderRoute: typeof HighlightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   CategoriesRoute: CategoriesRoute,
+  HighlightsRoute: HighlightsRoute,
   LibraryRoute: LibraryRoute,
   StoreRoute: StoreRoute,
   StudioRoute: StudioRoute,
@@ -229,13 +250,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -68,34 +68,25 @@ function HomePage() {
 
   return (
     <AppPage
+      hideBack
       header={
-        <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              aria-label="بحث"
-              className="flex size-12 items-center justify-center rounded-lg bg-panel text-ink shadow-sm transition-transform active:scale-95"
-            >
-              <Search className="size-5" />
-            </button>
-            <button
-              type="button"
-              onClick={toggle}
-              aria-label={theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
-              className="flex size-12 items-center justify-center rounded-lg bg-panel text-ink shadow-sm transition-transform active:scale-95"
-            >
-              {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
-            </button>
+        <header className="flex items-end justify-between gap-4 pt-6">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            aria-label="بحث"
+            className="flex size-16 items-center justify-center rounded-2xl bg-panel text-ink shadow-sm transition-transform active:scale-95"
+          >
+            <Search className="size-6" />
+          </button>
+          <div className="text-left">
+            <h1 className="font-reading text-4xl leading-tight font-semibold text-ink">رفوفي</h1>
+            <p className="pt-1 text-lg text-ink-soft">تابع من حيث توقفت</p>
           </div>
-          <img
-            src={logoAsset.url}
-            alt="رفوف — قارئ، ومكتبة، وصديقك"
-            className="logo-mark ms-auto h-14 w-auto object-contain"
-          />
         </header>
       }
     >
+
       {current ? (
         <section className="mt-6 rounded-lg bg-panel p-4 shadow-[0_18px_40px_-24px_rgb(0_0_0/0.35)]">
           <div className="flex gap-4">
