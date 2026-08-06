@@ -13,9 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as HighlightsRouteImport } from './routes/highlights'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as StudioRouteImport } from './routes/studio'
+import { Route as AuthorAuthorIdRouteImport } from './routes/author.$authorId'
 import { Route as BookBookIdRouteImport } from './routes/book.$bookId'
 import { Route as ReadBookIdRouteImport } from './routes/read.$bookId'
 
@@ -39,6 +41,11 @@ const CategoriesRoute = CategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HighlightsRoute = HighlightsRouteImport.update({
+  id: '/highlights',
+  path: '/highlights',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
@@ -52,6 +59,11 @@ const StoreRoute = StoreRouteImport.update({
 const StudioRoute = StudioRouteImport.update({
   id: '/studio',
   path: '/studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthorAuthorIdRoute = AuthorAuthorIdRouteImport.update({
+  id: '/author/$authorId',
+  path: '/author/$authorId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookBookIdRoute = BookBookIdRouteImport.update({
@@ -70,9 +82,11 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/categories': typeof CategoriesRoute
+  '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
+  '/author/$authorId': typeof AuthorAuthorIdRoute
   '/book/$bookId': typeof BookBookIdRoute
   '/read/$bookId': typeof ReadBookIdRoute
 }
@@ -81,9 +95,11 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/categories': typeof CategoriesRoute
+  '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
+  '/author/$authorId': typeof AuthorAuthorIdRoute
   '/book/$bookId': typeof BookBookIdRoute
   '/read/$bookId': typeof ReadBookIdRoute
 }
@@ -93,9 +109,11 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/categories': typeof CategoriesRoute
+  '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
+  '/author/$authorId': typeof AuthorAuthorIdRoute
   '/book/$bookId': typeof BookBookIdRoute
   '/read/$bookId': typeof ReadBookIdRoute
 }
@@ -106,9 +124,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/categories'
+    | '/highlights'
     | '/library'
     | '/store'
     | '/studio'
+    | '/author/$authorId'
     | '/book/$bookId'
     | '/read/$bookId'
   fileRoutesByTo: FileRoutesByTo
@@ -117,9 +137,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/categories'
+    | '/highlights'
     | '/library'
     | '/store'
     | '/studio'
+    | '/author/$authorId'
     | '/book/$bookId'
     | '/read/$bookId'
   id:
@@ -128,9 +150,11 @@ export interface FileRouteTypes {
     | '/account'
     | '/auth'
     | '/categories'
+    | '/highlights'
     | '/library'
     | '/store'
     | '/studio'
+    | '/author/$authorId'
     | '/book/$bookId'
     | '/read/$bookId'
   fileRoutesById: FileRoutesById
@@ -140,9 +164,11 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   CategoriesRoute: typeof CategoriesRoute
+  HighlightsRoute: typeof HighlightsRoute
   LibraryRoute: typeof LibraryRoute
   StoreRoute: typeof StoreRoute
   StudioRoute: typeof StudioRoute
+  AuthorAuthorIdRoute: typeof AuthorAuthorIdRoute
   BookBookIdRoute: typeof BookBookIdRoute
   ReadBookIdRoute: typeof ReadBookIdRoute
 }
@@ -177,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/highlights': {
+      id: '/highlights'
+      path: '/highlights'
+      fullPath: '/highlights'
+      preLoaderRoute: typeof HighlightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/library': {
       id: '/library'
       path: '/library'
@@ -196,6 +229,13 @@ declare module '@tanstack/react-router' {
       path: '/studio'
       fullPath: '/studio'
       preLoaderRoute: typeof StudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/author/$authorId': {
+      id: '/author/$authorId'
+      path: '/author/$authorId'
+      fullPath: '/author/$authorId'
+      preLoaderRoute: typeof AuthorAuthorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book/$bookId': {
@@ -220,9 +260,11 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   CategoriesRoute: CategoriesRoute,
+  HighlightsRoute: HighlightsRoute,
   LibraryRoute: LibraryRoute,
   StoreRoute: StoreRoute,
   StudioRoute: StudioRoute,
+  AuthorAuthorIdRoute: AuthorAuthorIdRoute,
   BookBookIdRoute: BookBookIdRoute,
   ReadBookIdRoute: ReadBookIdRoute,
 }

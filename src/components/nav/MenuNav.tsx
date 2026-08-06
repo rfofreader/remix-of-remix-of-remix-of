@@ -1,19 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BookOpen,
   Compass,
+  Highlighter,
   Library,
   Menu,
+  Moon,
   PenLine,
   ShoppingBag,
-  Tags,
+  Sun,
   User,
   X,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useSiteTheme } from "@/hooks/use-site-theme";
 
-type RoutePath = "/" | "/library" | "/categories" | "/store" | "/account" | "/studio";
+type RoutePath = "/" | "/library" | "/highlights" | "/store" | "/account" | "/studio";
 
 interface Item {
   to: RoutePath;
@@ -24,15 +27,19 @@ interface Item {
 const baseItems: Item[] = [
   { to: "/", label: "الرئيسية", icon: Library },
   { to: "/library", label: "المكتبة", icon: BookOpen },
-  { to: "/categories", label: "التصنيفات", icon: Tags },
+  { to: "/highlights", label: "التظليلات", icon: Highlighter },
   { to: "/store", label: "المتجر", icon: ShoppingBag },
   { to: "/account", label: "حسابي", icon: User },
 ];
 
+const rowClass =
+  "flex items-center justify-end gap-2.5 rounded-2xl py-2.5 pr-4 pl-4 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors";
+
 /** زر قائمة عائم يفتح شريط تنقّل عمودي منبثق (RTL: أقصى اليمين). */
-export function MenuNav() {
+export function MenuNav({ extra }: { extra?: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { isAdmin } = useAuth();
+  const { theme, toggle } = useSiteTheme();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
@@ -77,18 +84,38 @@ export function MenuNav() {
             >
               <Link
                 to={item.to}
-                className={`flex items-center gap-2.5 rounded-2xl py-2.5 pr-3 pl-4 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors ${
+                className={`${rowClass} ${
                   active
                     ? "bg-brand text-brand-ink"
                     : "bg-panel text-panel-ink hover:bg-panel-rule"
                 }`}
               >
-                <item.icon className="size-4 shrink-0 opacity-80" />
                 {item.label}
+                <item.icon className="size-4 shrink-0 opacity-80" />
               </Link>
             </li>
           );
         })}
+
+        <li
+          style={{ transitionDelay: "0ms", transformOrigin: "bottom center" }}
+          className={`transition-all duration-200 ease-out ${
+            open ? "translate-y-0 scale-100 opacity-100" : "translate-y-8 scale-90 opacity-0"
+          }`}
+        >
+          <button
+            onClick={toggle}
+            className={`${rowClass} bg-panel text-panel-ink hover:bg-panel-rule`}
+          >
+            {theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
+            {theme === "dark" ? (
+              <Sun className="size-4 shrink-0 opacity-80" />
+            ) : (
+              <Moon className="size-4 shrink-0 opacity-80" />
+            )}
+          </button>
+        </li>
+
         <li
           style={{ transitionDelay: "0ms", transformOrigin: "bottom center" }}
           className={`transition-all duration-200 ease-out ${
@@ -96,12 +123,13 @@ export function MenuNav() {
           }`}
         >
           <span className="flex items-center gap-2 rounded-2xl bg-panel/70 px-3 py-1.5 text-[11px] text-panel-ink/60">
-            <Compass className="size-3.5" />
             تصفّح
+            <Compass className="size-3.5" />
           </span>
         </li>
       </ul>
 
+      {extra ? <div className="pointer-events-auto mb-3 flex flex-col gap-3">{extra}</div> : null}
 
       <button
         onClick={() => setOpen((value) => !value)}
@@ -111,7 +139,6 @@ export function MenuNav() {
       >
         {open ? <X className="size-6" /> : <Menu className="size-6" />}
       </button>
-
     </div>
   );
 }

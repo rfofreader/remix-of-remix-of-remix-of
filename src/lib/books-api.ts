@@ -41,10 +41,69 @@ export async function fetchCategories(): Promise<CategoryRow[]> {
   return (data ?? []) as unknown as CategoryRow[];
 }
 
+export interface AuthorRow {
+  id: string;
+  name: string;
+  bio: string | null;
+  photo_url: string | null;
+  created_at: string;
+}
+
+export async function fetchAuthors(): Promise<AuthorRow[]> {
+  const { data, error } = await supabase
+    .from("authors")
+    .select("*")
+    .order("name", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as AuthorRow[];
+}
+
+export async function fetchAuthor(id: string): Promise<AuthorRow | null> {
+  const { data, error } = await supabase.from("authors").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as AuthorRow | null;
+}
+
+export async function saveAuthor(input: {
+  id?: string;
+  name: string;
+  bio: string | null;
+  photo_url: string | null;
+}) {
+  if (input.id) {
+    const { error } = await supabase.from("authors").update(input).eq("id", input.id);
+    if (error) throw error;
+    return;
+  }
+  const { error } = await supabase.from("authors").insert(input);
+  if (error) throw error;
+}
+
+export async function removeAuthor(id: string) {
+  const { error } = await supabase.from("authors").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/** يرفع صورة غلاف ويعيد رابطاً موقّعاً طويل الأمد. */
+export async function uploadCover(file: File): Promise<string> {
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from("covers").upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data, error: signError } = await supabase.storage
+    .from("covers")
+    .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+  if (signError || !data) throw signError ?? new Error("تعذّر إنشاء رابط الغلاف");
+  return data.signedUrl;
+}
+
 export interface BookInput {
   id?: string;
   title: string;
   author: string;
+  author_id: string | null;
+  cover_url: string | null;
+  download_url: string | null;
   publisher: string | null;
   published_date: string | null;
   page_count: number | null;
@@ -90,6 +149,7 @@ export async function removeCategory(id: string) {
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) throw error;
 }
+
 
 /* ---------- المفضلة ---------- */
 

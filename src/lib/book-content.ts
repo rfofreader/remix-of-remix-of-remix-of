@@ -13,6 +13,9 @@ export interface BookRow {
   id: string;
   title: string;
   author: string;
+  author_id: string | null;
+  cover_url: string | null;
+  download_url: string | null;
   publisher: string | null;
   published_date: string | null;
   page_count: number | null;
@@ -23,6 +26,7 @@ export interface BookRow {
   created_at: string;
   updated_at: string;
 }
+
 
 export interface BookBlock {
   id: string;
