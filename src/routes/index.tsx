@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { user } = useAuth();
-  const { theme, toggle } = useSiteTheme();
+
   const navigate = useNavigate();
   const [books, setBooks] = useState<BookWithCategory[]>([]);
   const [progress, setProgress] = useState<Record<string, number>>({});
