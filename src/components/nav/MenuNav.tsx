@@ -44,12 +44,15 @@ export function MenuNav() {
     : baseItems;
 
   return (
-    <div dir="rtl" className="fixed right-4 bottom-5 z-50 flex flex-col items-end">
+    <div
+      dir="rtl"
+      className="pointer-events-none fixed inset-x-0 bottom-5 z-50 mx-auto flex w-full max-w-md flex-col items-end px-5"
+    >
       {open ? (
         <button
           aria-label="إغلاق القائمة"
           onClick={() => setOpen(false)}
-          className="fixed inset-0 -z-10 cursor-default bg-ink/25 backdrop-blur-[2px]"
+          className="pointer-events-auto fixed inset-0 -z-10 cursor-default bg-ink/25 backdrop-blur-[2px]"
         />
       ) : null}
 
@@ -74,14 +77,14 @@ export function MenuNav() {
             >
               <Link
                 to={item.to}
-                className={`flex items-center gap-2.5 rounded-2xl py-2.5 pr-4 pl-3 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors ${
+                className={`flex items-center gap-2.5 rounded-2xl py-2.5 pr-3 pl-4 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors ${
                   active
                     ? "bg-brand text-brand-ink"
                     : "bg-panel text-panel-ink hover:bg-panel-rule"
                 }`}
               >
-                {item.label}
                 <item.icon className="size-4 shrink-0 opacity-80" />
+                {item.label}
               </Link>
             </li>
           );
@@ -93,8 +96,8 @@ export function MenuNav() {
           }`}
         >
           <span className="flex items-center gap-2 rounded-2xl bg-panel/70 px-3 py-1.5 text-[11px] text-panel-ink/60">
-            تصفّح
             <Compass className="size-3.5" />
+            تصفّح
           </span>
         </li>
       </ul>
@@ -104,7 +107,7 @@ export function MenuNav() {
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
         aria-expanded={open}
-        className="flex size-14 items-center justify-center rounded-3xl bg-brand text-brand-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
+        className="pointer-events-auto flex size-14 items-center justify-center rounded-3xl bg-brand text-brand-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
       >
         {open ? <X className="size-6" /> : <Menu className="size-6" />}
       </button>
