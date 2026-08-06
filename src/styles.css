@@ -183,26 +183,31 @@
 }
 
 .paper-dark {
-  /* #1B1B1B */
-  --paper: oklch(0.207 0 0);
-  --ink: oklch(0.9 0 0);
-  --ink-soft: oklch(0.66 0 0);
-  --chrome: oklch(0.3 0 0);
-  --chrome-ink: oklch(0.95 0 0);
-  --rule: oklch(0.36 0 0);
-  --panel: oklch(0.26 0 0);
-  --panel-ink: oklch(0.95 0 0);
-  --panel-rule: oklch(1 0 0 / 14%);
+  /* #171717 */
+  --paper: oklch(0.216 0 0);
+  --ink: oklch(0.93 0.006 85);
+  --ink-soft: oklch(0.68 0.008 85);
+  --chrome: oklch(0.29 0.004 85);
+  --chrome-ink: oklch(0.95 0.012 85);
+  --rule: oklch(0.34 0.004 85);
+  --panel: oklch(0.263 0.003 85);
+  --panel-ink: oklch(0.94 0.01 85);
+  --panel-rule: oklch(1 0 0 / 12%);
 }
 
 
 .paper-light,
 .paper-sepia,
-.paper-dark,
 :root {
   /* #3C2C21 */
   --brand: oklch(0.295 0.031 62);
   --brand-ink: oklch(0.965 0.015 85);
+}
+
+/* في الوضع الداكن يكون لون التمييز سيبيا فاتحاً */
+.paper-dark {
+  --brand: oklch(0.83 0.045 78);
+  --brand-ink: oklch(0.24 0.02 60);
 }
 
 .paper-light,
@@ -213,6 +218,7 @@
   --hl-blue: oklch(0.88 0.1 240 / 45%);
   --hl-pink: oklch(0.88 0.11 355 / 45%);
 }
+
 
 
 @layer base {
