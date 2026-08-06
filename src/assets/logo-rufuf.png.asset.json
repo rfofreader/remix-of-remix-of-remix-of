@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "e7ec08a9-72d8-44cc-8a9e-49cd367fbf80",
-  "project_id": "b4fefba9-2e2d-4b75-b800-5dbfa0c9a91e",
-  "url": "/__l5e/assets-v1/e7ec08a9-72d8-44cc-8a9e-49cd367fbf80/logo-rufuf.png",
-  "r2_key": "a/v1/b4fefba9-2e2d-4b75-b800-5dbfa0c9a91e/e7ec08a9-72d8-44cc-8a9e-49cd367fbf80/logo-rufuf.png",
-  "original_filename": "logo-rufuf.png",
-  "size": 1102469,
   "content_type": "image/png",
-  "created_at": "2026-08-06T01:00:51Z"
+  "created_at": "2026-08-06T01:00:51Z",
+  "original_filename": "logo-rufuf.png",
+  "project_id": "69e457df-8e62-4dc7-99ae-a9d8cb38394b",
+  "r2_key": "a/v1/69e457df-8e62-4dc7-99ae-a9d8cb38394b/e7ec08a9-72d8-44cc-8a9e-49cd367fbf80/logo-rufuf.png",
+  "size": 1102469,
+  "url": "/__l5e/assets-v1/e7ec08a9-72d8-44cc-8a9e-49cd367fbf80/logo-rufuf.png",
+  "version": 1
 }
