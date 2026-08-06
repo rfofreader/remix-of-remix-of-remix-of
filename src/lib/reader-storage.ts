@@ -1,5 +1,18 @@
 export type HighlightColor = "yellow" | "green" | "blue" | "pink";
 export type ReaderTheme = "light" | "sepia" | "dark";
+export type ReaderFont = "plex" | "uthman" | "amiri" | "naskh" | "cairo";
+
+export const readerFonts: { id: ReaderFont; label: string; stack: string }[] = [
+  { id: "plex", label: "IBM Plex Arabic", stack: '"IBM Plex Sans Arabic", system-ui, sans-serif' },
+  { id: "uthman", label: "عثمان طه", stack: '"Uthman Taha", "Noto Naskh Arabic", serif' },
+  { id: "amiri", label: "أميري", stack: '"Amiri", serif' },
+  { id: "naskh", label: "نسخ", stack: '"Noto Naskh Arabic", serif' },
+  { id: "cairo", label: "القاهرة", stack: '"Cairo", sans-serif' },
+];
+
+export function fontStack(id: ReaderFont): string {
+  return readerFonts.find((font) => font.id === id)?.stack ?? readerFonts[0]!.stack;
+}
 
 export interface Highlight {
   id: string;
@@ -18,16 +31,22 @@ export interface ReaderSettings {
   fontSize: number;
   lineHeight: number;
   width: number;
+  font: ReaderFont;
+  bold: boolean;
 }
 
 export const defaultSettings: ReaderSettings = {
-  theme: "sepia",
-  fontSize: 20,
-  lineHeight: 2,
+  theme: "dark",
+  fontSize: 18,
+  lineHeight: 1.9,
   width: 640,
+  font: "plex",
+  bold: false,
 };
 
 const KEY = (bookId: string, kind: string) => `reader:${bookId}:${kind}`;
+/** إعدادات القارئ عامة لكل الكتب ويتم تذكّرها بين الجلسات. */
+const SETTINGS_KEY = "reader:settings";
 
 function write(key: string, value: unknown) {
   if (typeof window === "undefined") return;
@@ -38,19 +57,20 @@ function write(key: string, value: unknown) {
   }
 }
 
-export function loadSettings(bookId: string): ReaderSettings {
+export function loadSettings(): ReaderSettings {
   if (typeof window === "undefined") return defaultSettings;
   try {
-    const raw = window.localStorage.getItem(KEY(bookId, "settings"));
+    const raw = window.localStorage.getItem(SETTINGS_KEY);
     return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
   } catch {
     return defaultSettings;
   }
 }
 
-export function saveSettings(bookId: string, settings: ReaderSettings) {
-  write(KEY(bookId, "settings"), settings);
+export function saveSettings(settings: ReaderSettings) {
+  write(SETTINGS_KEY, settings);
 }
+
 
 export function loadHighlights(bookId: string): Highlight[] {
   if (typeof window === "undefined") return [];
