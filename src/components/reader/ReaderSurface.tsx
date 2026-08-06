@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import type { Book } from "@/lib/book-content";
 import type { Highlight, ReaderSettings } from "@/lib/reader-storage";
+import { fontStack } from "@/lib/reader-storage";
 import { segmentParagraph, highlightColorClass } from "@/lib/reader-selection";
 
 interface Props {
@@ -23,8 +24,11 @@ export const ReaderSurface = forwardRef<HTMLDivElement, Props>(function ReaderSu
         maxWidth: settings.width,
         fontSize: settings.fontSize,
         lineHeight: settings.lineHeight,
+        fontFamily: fontStack(settings.font),
+        fontWeight: settings.bold ? 700 : 400,
       }}
     >
+
       <header className="pb-12 text-center">
         <h1 className="font-reading text-3xl leading-relaxed text-ink">{book.title}</h1>
         <p className="pt-2 font-ui text-sm text-ink-soft">{book.author}</p>
