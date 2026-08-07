@@ -11,8 +11,9 @@ function read(): SiteTheme {
 
 function apply(theme: SiteTheme) {
   const root = document.documentElement;
-  root.classList.remove("site-cream", "site-dark");
+  root.classList.remove("paper-light", "paper-sepia", "paper-dark", "site-cream", "site-dark");
   root.classList.add(`site-${theme}`);
+
   document.body.style.backgroundColor = "var(--paper)";
 }
 
