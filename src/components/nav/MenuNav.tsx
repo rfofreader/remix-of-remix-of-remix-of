@@ -137,7 +137,7 @@ export function MenuNav({ extra }: { extra?: ReactNode }) {
         aria-expanded={open}
         className="pointer-events-auto flex size-14 items-center justify-center rounded-3xl bg-brand text-brand-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
       >
-        {open ? <X className="size-6" /> : <Menu className="size-6" />}
+        {open ? <CloseIcon className="size-6" /> : <MenuIcon className="size-6" />}
       </button>
     </div>
   );
