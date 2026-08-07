@@ -111,10 +111,6 @@ function ReaderPage() {
     setSettings(loadSettings());
     setHighlights(loadHighlights(book.id));
     setHydrated(true);
-    const saved = loadProgress(book.id);
-    if (saved > 0) {
-      requestAnimationFrame(() => window.scrollTo({ top: saved }));
-    }
   }, [book.id]);
 
   useEffect(() => {
@@ -129,12 +125,34 @@ function ReaderPage() {
   /* ---------- theme tokens must reach portals (sheets/dialogs) ---------- */
   useEffect(() => {
     const root = document.documentElement;
-    const classes = ["paper-light", "paper-sepia", "paper-dark"];
+    const classes = ["paper-light", "paper-sepia", "paper-dark", "site-cream", "site-dark"];
     root.classList.remove(...classes);
     root.classList.add(`paper-${settings.theme}`);
     document.body.style.backgroundColor = "var(--paper)";
     return () => root.classList.remove(...classes);
   }, [settings.theme]);
+
+  /* ---------- استعادة موضع القراءة بعد وصول المحتوى فعلياً ---------- */
+  useEffect(() => {
+    if (restoredRef.current) return;
+    if (book.chapters.length === 0) return;
+    const saved = loadProgress(book.id);
+    let frame = 0;
+    let tries = 0;
+    const restore = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      /* ننتظر حتى يُرسم المحتوى ويصبح للصفحة ارتفاع كافٍ */
+      if (saved > 0 && max < saved && tries < 60) {
+        tries += 1;
+        frame = requestAnimationFrame(restore);
+        return;
+      }
+      if (saved > 0) window.scrollTo({ top: Math.min(saved, max) });
+      restoredRef.current = true;
+    };
+    frame = requestAnimationFrame(restore);
+    return () => cancelAnimationFrame(frame);
+  }, [book.id, book.chapters.length]);
 
   /* ---------- progress + active chapter ---------- */
   useEffect(() => {
@@ -142,13 +160,16 @@ function ReaderPage() {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
       setProgress(ratio);
-      saveProgress(book.id, window.scrollY);
-      saveProgressRatio(book.id, ratio);
-      if (user) {
-        window.clearTimeout(historyTimer.current);
-        historyTimer.current = window.setTimeout(() => {
-          void saveHistory(user.id, book.id, ratio);
-        }, 1200);
+      /* لا نكتب الموضع قبل اكتمال الاستعادة حتى لا نمحو النقطة المحفوظة */
+      if (restoredRef.current) {
+        saveProgress(book.id, window.scrollY);
+        saveProgressRatio(book.id, ratio);
+        if (user) {
+          window.clearTimeout(historyTimer.current);
+          historyTimer.current = window.setTimeout(() => {
+            void saveHistory(user.id, book.id, ratio);
+          }, 1200);
+        }
       }
 
       let current = book.chapters[0]?.id ?? "";
@@ -162,8 +183,18 @@ function ReaderPage() {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const onLeave = () => {
+      if (!restoredRef.current) return;
+      saveProgress(book.id, window.scrollY);
+    };
+    window.addEventListener("pagehide", onLeave);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pagehide", onLeave);
+      onLeave();
+    };
   }, [book, user]);
+
 
 
   /* ---------- selection handling ---------- */
