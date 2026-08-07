@@ -82,6 +82,7 @@ function HomePage() {
   return (
     <AppPage
       hideBack
+      raiseNav={!!current}
       header={
         <header className="flex items-start justify-between gap-4 pt-4">
           <div className="text-right">

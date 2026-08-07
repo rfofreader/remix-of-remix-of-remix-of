@@ -61,10 +61,10 @@ function AuthorPage() {
           <div className="flex gap-4">
             <BookCover book={featured} className="h-[150px] w-[106px] shrink-0" />
             <div className="min-w-0 flex-1 pt-1">
-              <h2 className="font-reading text-xl leading-snug text-ink">{featured.title}</h2>
-              <p className="pt-1 text-xs text-ink-soft">{featured.author}</p>
+              <h2 className="font-reading text-xl leading-snug text-panel-ink">{featured.title}</h2>
+              <p className="pt-1 text-xs text-panel-ink/70">{featured.author}</p>
               {featured.description ? (
-                <p className="mt-3 line-clamp-4 text-[11px] leading-5 text-ink-soft">
+                <p className="mt-3 line-clamp-4 text-[11px] leading-5 text-panel-ink/70">
                   {featured.description}
                 </p>
               ) : null}
@@ -73,7 +73,7 @@ function AuthorPage() {
           <Link
             to="/book/$bookId"
             params={{ bookId: featured.id }}
-            className="mt-4 flex items-center justify-between rounded-lg bg-brand px-6 py-4 text-sm font-medium text-brand-ink transition-transform active:scale-[0.98]"
+            className="mt-4 flex items-center justify-between rounded-2xl bg-paper px-6 py-4 text-sm font-medium text-ink transition-transform active:scale-[0.98]"
           >
             تفاصيل الكتاب
             <span aria-hidden className="text-lg leading-none">
