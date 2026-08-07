@@ -53,7 +53,7 @@ function LibraryPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="ابحث عن كتاب أو مؤلف…"
-          className="h-11 rounded-lg border-rule bg-panel pr-9 text-ink placeholder:text-ink-soft"
+          className="h-11 rounded-lg border-rule bg-paper pr-9 text-ink placeholder:text-ink-soft"
         />
       </div>
 
@@ -107,7 +107,7 @@ function Chip({
     <button
       onClick={onClick}
       className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
-        active ? "bg-brand text-brand-ink" : "bg-panel text-ink-soft"
+        active ? "bg-brand text-brand-ink" : "bg-panel text-panel-ink/70"
       }`}
     >
       {label}

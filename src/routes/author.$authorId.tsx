@@ -53,7 +53,7 @@ function AuthorPage() {
       }
     >
       {author?.bio ? (
-        <p className="mt-6 rounded-lg bg-panel p-4 text-sm leading-7 text-ink">{author.bio}</p>
+        <p className="mt-6 rounded-lg bg-panel p-4 text-sm leading-7 text-panel-ink">{author.bio}</p>
       ) : null}
 
       {featured ? (

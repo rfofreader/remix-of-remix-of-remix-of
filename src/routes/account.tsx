@@ -224,7 +224,7 @@ function AccountPage() {
         {isAdmin ? (
           <Link
             to="/studio"
-            className="flex items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-ink"
+            className="flex items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-panel-ink"
           >
             <PenLine className="size-4 text-ink-soft" />
             لوحة الكتابة
@@ -232,7 +232,7 @@ function AccountPage() {
         ) : null}
         <button
           onClick={() => void signOut()}
-          className="flex w-full items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-ink"
+          className="flex w-full items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-panel-ink"
         >
           <LogOut className="size-4 text-ink-soft" />
           تسجيل الخروج
@@ -247,7 +247,7 @@ function AccountPage() {
           </h2>
           <button
             onClick={() => setNewListOpen(true)}
-            className="flex items-center gap-1 rounded-lg bg-panel px-3 py-1.5 text-xs text-ink"
+            className="flex items-center gap-1 rounded-lg bg-panel px-3 py-1.5 text-xs text-panel-ink"
           >
             <Plus className="size-3.5" />
             قائمة جديدة

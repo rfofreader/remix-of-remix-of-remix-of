@@ -589,7 +589,7 @@ function StudioPage() {
               {books.map((book) => (
                 <li
                   key={book.id}
-                  className="flex items-center gap-3 rounded-lg bg-panel px-3 py-3 text-sm text-ink"
+                  className="flex items-center gap-3 rounded-lg bg-panel px-3 py-3 text-sm text-panel-ink"
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate">{book.title}</span>
@@ -635,7 +635,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={`flex-1 rounded-lg px-3 py-2 text-xs transition-colors ${
-        active ? "bg-brand text-brand-ink" : "bg-panel text-ink-soft"
+        active ? "bg-brand text-brand-ink" : "bg-panel text-panel-ink/70"
       }`}
     >
       {label}
