@@ -78,6 +78,8 @@ function ReaderPage() {
   }, [bookId]);
   const surfaceRef = useRef<HTMLDivElement>(null);
   const historyTimer = useRef<number | undefined>(undefined);
+  const restoredRef = useRef(false);
+
 
   const [settings, setSettings] = useState<ReaderSettings>(defaultSettings);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
