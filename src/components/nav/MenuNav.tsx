@@ -5,16 +5,16 @@ import {
   Compass,
   Highlighter,
   Library,
-  Menu,
   Moon,
   PenLine,
   ShoppingBag,
   Sun,
   User,
-  X,
 } from "lucide-react";
+import { CloseIcon, MenuIcon } from "@/components/icons/AppIcons";
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteTheme } from "@/hooks/use-site-theme";
+
 
 type RoutePath = "/" | "/library" | "/highlights" | "/store" | "/account" | "/studio";
 

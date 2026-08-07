@@ -33,7 +33,7 @@ export function AppPage({
   return (
     <main
       dir="rtl"
-      className={`paper-${theme} min-h-screen bg-paper px-5 pt-10 pb-28`}
+      className={`site-${theme} min-h-screen bg-paper px-5 pt-10 pb-28`}
       style={{ fontFamily: "var(--font-ui)" }}
     >
       {hideBack ? null : (
