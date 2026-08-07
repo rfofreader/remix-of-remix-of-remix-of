@@ -14,6 +14,8 @@ interface Props {
   hideBack?: boolean;
   /** أزرار عائمة تُعرض فوق زر القائمة. */
   navExtra?: ReactNode;
+  /** رفع زر القائمة فوق الشريط السفلي الثابت. */
+  raiseNav?: boolean;
   children: ReactNode;
 }
 
@@ -25,6 +27,7 @@ export function AppPage({
   header,
   hideBack,
   navExtra,
+  raiseNav,
   children,
 }: Props) {
   const { theme } = useSiteTheme();
@@ -59,7 +62,7 @@ export function AppPage({
         )}
         {children}
       </div>
-      <MenuNav extra={navExtra} />
+      <MenuNav extra={navExtra} bottomClass={raiseNav ? "bottom-32" : "bottom-5"} />
     </main>
   );
 }

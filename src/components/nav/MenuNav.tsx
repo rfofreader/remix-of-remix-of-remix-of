@@ -36,7 +36,7 @@ const rowClass =
   "flex items-center justify-end gap-2.5 rounded-2xl py-2.5 pr-4 pl-4 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors";
 
 /** زر قائمة عائم يفتح شريط تنقّل عمودي منبثق (RTL: أقصى اليمين). */
-export function MenuNav({ extra }: { extra?: ReactNode }) {
+export function MenuNav({ extra, bottomClass = "bottom-5" }: { extra?: ReactNode; bottomClass?: string }) {
   const [open, setOpen] = useState(false);
   const { isAdmin } = useAuth();
   const { theme, toggle } = useSiteTheme();
@@ -53,7 +53,7 @@ export function MenuNav({ extra }: { extra?: ReactNode }) {
   return (
     <div
       dir="rtl"
-      className="pointer-events-none fixed inset-x-0 bottom-5 z-50 mx-auto flex w-full max-w-md flex-col items-end px-5"
+      className={`pointer-events-none fixed inset-x-0 ${bottomClass} z-50 mx-auto flex w-full max-w-md flex-col items-end px-5`}
     >
       {open ? (
         <button
