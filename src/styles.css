@@ -282,6 +282,14 @@
   font-display: swap;
 }
 
+/* خط الشعار — يُستخدم حصراً في كلمة "رفـــوف" */
+@font-face {
+  font-family: "Lyon Arabic";
+  src: url("/__l5e/assets-v1/5d2c6c2a-9909-4a92-823f-a8a2bf63f953/lyon-arabic-semibold.otf") format("opentype");
+  font-display: swap;
+}
+
+
 /* الشعار: يظهر بلونه الأصلي في الوضع الفاتح، وأبيض في الوضع الداكن */
 .logo-mark {
   transition: filter 200ms ease;
