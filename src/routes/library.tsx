@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { AppPage } from "@/components/layout/AppPage";
-import { BookCover } from "@/components/library/BookCover";
+import { BookGrid } from "@/components/library/BookGrid";
 import { Input } from "@/components/ui/input";
 import {
   fetchBooks,
@@ -14,9 +14,9 @@ import {
 export const Route = createFileRoute("/library")({
   head: () => ({
     meta: [
-      { title: "المكتبة — أثر الهدوء" },
+      { title: "المكتبة — رفوف" },
       { name: "description", content: "تصفّح كل الكتب المتاحة وابحث فيها حسب العنوان أو المؤلف." },
-      { property: "og:title", content: "المكتبة — أثر الهدوء" },
+      { property: "og:title", content: "المكتبة — رفوف" },
       { property: "og:description", content: "كل الكتب في مكان واحد." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -53,7 +53,7 @@ function LibraryPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="ابحث عن كتاب أو مؤلف…"
-          className="h-11 rounded-lg border-rule bg-panel pr-9 text-ink placeholder:text-ink-soft"
+          className="h-11 rounded-lg border-rule bg-paper pr-9 text-ink placeholder:text-ink-soft"
         />
       </div>
 
@@ -71,21 +71,7 @@ function LibraryPage() {
         </div>
       ) : null}
 
-      <ul className="mt-6 grid grid-cols-3 gap-3">
-        {filtered.map((book) => (
-          <li key={book.id}>
-            <Link
-              to="/book/$bookId"
-              params={{ bookId: book.id }}
-              className="block transition-opacity active:opacity-70"
-            >
-              <BookCover book={book} className="aspect-[2/3] w-full" />
-              <p className="pt-2 line-clamp-2 text-xs leading-5 text-ink">{book.title}</p>
-              <p className="text-[11px] text-ink-soft">{book.author}</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <BookGrid books={filtered} />
 
       {filtered.length === 0 ? (
         <p className="mt-10 text-center text-sm text-ink-soft">لا توجد نتائج.</p>
@@ -106,8 +92,8 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`rounded-lg px-3 py-1.5 text-xs transition-colors ${
-        active ? "bg-brand text-brand-ink" : "bg-panel text-ink-soft"
+      className={`rounded-full px-3 py-1.5 text-xs transition-colors ${
+        active ? "bg-brand text-brand-ink" : "bg-panel text-panel-ink/70"
       }`}
     >
       {label}

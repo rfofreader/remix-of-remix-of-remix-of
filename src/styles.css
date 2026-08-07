@@ -154,9 +154,52 @@
   --font-reading: "IBM Plex Sans Arabic", system-ui, sans-serif;
   --font-quran: "IBM Plex Sans Arabic", system-ui, sans-serif;
   --font-ui: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-logo: "Lyon Arabic", "IBM Plex Sans Arabic", serif;
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
 }
+
+/* ---------------------------------------------------------------
+ * هوية الموقع (خارج القارئ): كريمي دافئ + بنّي داكن فقط
+ * --------------------------------------------------------------- */
+
+/* #F5EFE3 خلفية — #38291C عناصر داكنة */
+.site-cream {
+  --paper: oklch(0.9509 0.0166 84.5);
+  --ink: oklch(0.2836 0.0264 55);
+  --ink-soft: oklch(0.4462 0.0264 55);
+  --chrome: oklch(0.2836 0.0264 55);
+  --chrome-ink: oklch(0.9509 0.0166 84.5);
+  --rule: oklch(0.8809 0.0166 84.5);
+  --panel: oklch(0.2836 0.0264 55);
+  --panel-ink: oklch(0.9509 0.0166 84.5);
+  --panel-rule: oklch(0.9509 0.0166 84.5 / 16%);
+  --brand: oklch(0.2836 0.0264 55);
+  --brand-ink: oklch(0.9509 0.0166 84.5);
+  --hl-yellow: oklch(0.92 0.15 95 / 55%);
+  --hl-green: oklch(0.88 0.14 150 / 45%);
+  --hl-blue: oklch(0.88 0.1 240 / 45%);
+  --hl-pink: oklch(0.88 0.11 355 / 45%);
+}
+
+.site-dark {
+  --paper: oklch(0.216 0 0);
+  --ink: oklch(0.9509 0.0166 84.5);
+  --ink-soft: oklch(0.72 0.012 84.5);
+  --chrome: oklch(0.29 0.004 85);
+  --chrome-ink: oklch(0.9509 0.0166 84.5);
+  --rule: oklch(0.34 0.004 85);
+  --panel: oklch(0.9509 0.0166 84.5);
+  --panel-ink: oklch(0.2836 0.0264 55);
+  --panel-rule: oklch(0.2836 0.0264 55 / 14%);
+  --brand: oklch(0.9509 0.0166 84.5);
+  --brand-ink: oklch(0.2836 0.0264 55);
+  --hl-yellow: oklch(0.92 0.15 95 / 55%);
+  --hl-green: oklch(0.88 0.14 150 / 45%);
+  --hl-blue: oklch(0.88 0.1 240 / 45%);
+  --hl-pink: oklch(0.88 0.11 355 / 45%);
+}
+
 
 .paper-light {
   --paper: oklch(0.995 0 0);
@@ -238,6 +281,14 @@
   src: url("/__l5e/assets-v1/0d976013-d39c-4c9c-92ee-d68a540c7f05/uthman-taha-naskh.ttf") format("truetype");
   font-display: swap;
 }
+
+/* خط الشعار — يُستخدم حصراً في كلمة "رفـــوف" */
+@font-face {
+  font-family: "Lyon Arabic";
+  src: url("/__l5e/assets-v1/5d2c6c2a-9909-4a92-823f-a8a2bf63f953/lyon-arabic-semibold.otf") format("opentype");
+  font-display: swap;
+}
+
 
 /* الشعار: يظهر بلونه الأصلي في الوضع الفاتح، وأبيض في الوضع الداكن */
 .logo-mark {

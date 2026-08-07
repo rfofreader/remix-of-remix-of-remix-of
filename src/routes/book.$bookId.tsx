@@ -99,7 +99,7 @@ function BookDetailPage() {
           onClick={() => void onToggleFavorite()}
           aria-label="المفضلة"
           className={`flex size-12 items-center justify-center rounded-lg ${
-            favorite ? "bg-brand text-brand-ink" : "bg-panel text-ink"
+            favorite ? "bg-brand text-brand-ink" : "bg-panel text-panel-ink"
           }`}
         >
           <Heart className={`size-5 ${favorite ? "fill-current" : ""}`} />

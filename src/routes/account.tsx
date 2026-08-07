@@ -224,17 +224,17 @@ function AccountPage() {
         {isAdmin ? (
           <Link
             to="/studio"
-            className="flex items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-ink"
+            className="flex items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-panel-ink"
           >
-            <PenLine className="size-4 text-ink-soft" />
+            <PenLine className="size-4 text-panel-ink/70" />
             لوحة الكتابة
           </Link>
         ) : null}
         <button
           onClick={() => void signOut()}
-          className="flex w-full items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-ink"
+          className="flex w-full items-center gap-2 rounded-lg bg-panel px-4 py-3.5 text-sm text-panel-ink"
         >
-          <LogOut className="size-4 text-ink-soft" />
+          <LogOut className="size-4 text-panel-ink/70" />
           تسجيل الخروج
         </button>
       </div>
@@ -247,7 +247,7 @@ function AccountPage() {
           </h2>
           <button
             onClick={() => setNewListOpen(true)}
-            className="flex items-center gap-1 rounded-lg bg-panel px-3 py-1.5 text-xs text-ink"
+            className="flex items-center gap-1 rounded-lg bg-panel px-3 py-1.5 text-xs text-panel-ink"
           >
             <Plus className="size-3.5" />
             قائمة جديدة
@@ -257,16 +257,16 @@ function AccountPage() {
           {lists.map((list) => (
             <li key={list.id} className="rounded-lg bg-panel px-4 py-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="min-w-0 truncate text-sm text-ink">{list.name}</span>
+                <span className="min-w-0 truncate text-sm text-panel-ink">{list.name}</span>
                 <span className="flex items-center gap-2">
-                  <span className="text-[11px] text-ink-soft tabular-nums">
+                  <span className="text-[11px] text-panel-ink/60 tabular-nums">
                     {list.books.length}
                   </span>
                   {!list.is_default ? (
                     <button
                       onClick={() => void deleteList(list.id)}
                       aria-label="حذف القائمة"
-                      className="text-ink-soft"
+                      className="text-panel-ink/60"
                     >
                       <Trash2 className="size-3.5" />
                     </button>
@@ -318,15 +318,15 @@ function AccountPage() {
                 >
                   <BookCover book={book} className="h-14 w-10 shrink-0" />
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-ink">{book.title}</span>
-                    <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-rule">
+                    <span className="block truncate text-sm text-panel-ink">{book.title}</span>
+                    <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-panel-ink/25">
                       <span
-                        className="block h-full rounded-full bg-brand"
+                        className="block h-full rounded-full bg-panel-ink"
                         style={{ width: `${Math.max(2, Math.round(ratio * 100))}%` }}
                       />
                     </span>
                   </span>
-                  <span className="text-[11px] text-ink-soft tabular-nums">
+                  <span className="text-[11px] text-panel-ink/60 tabular-nums">
                     {Math.round(ratio * 100)}%
                   </span>
                 </Link>
@@ -404,8 +404,8 @@ function Stat({ icon, value, label }: { icon: string; value: number; label: stri
   return (
     <li className="rounded-lg bg-panel px-3 py-3 text-center">
       <span className="block text-base leading-none">{icon}</span>
-      <span className="block pt-1.5 text-lg font-semibold text-ink tabular-nums">{value}</span>
-      <span className="block text-[11px] text-ink-soft">{label}</span>
+      <span className="block pt-1.5 text-lg font-semibold text-panel-ink tabular-nums">{value}</span>
+      <span className="block text-[11px] text-panel-ink/60">{label}</span>
     </li>
   );
 }

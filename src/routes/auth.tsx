@@ -80,13 +80,13 @@ function AuthPage() {
       <div className="mt-6 space-y-2">
         <button
           onClick={() => void social("google")}
-          className="w-full rounded-lg bg-panel py-3.5 text-sm font-medium text-ink shadow-sm"
+          className="w-full rounded-lg bg-panel py-3.5 text-sm font-medium text-panel-ink"
         >
           المتابعة بحساب جوجل
         </button>
         <button
           onClick={() => void social("apple")}
-          className="w-full rounded-lg bg-panel py-3.5 text-sm font-medium text-ink shadow-sm"
+          className="w-full rounded-lg bg-panel py-3.5 text-sm font-medium text-panel-ink"
         >
           المتابعة بحساب آبل
         </button>
@@ -104,7 +104,7 @@ function AuthPage() {
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="الاسم"
-            className="h-11 rounded-lg border-rule bg-panel text-ink"
+            className="h-11 rounded-lg border-rule bg-paper text-ink"
           />
         ) : null}
         <Input
@@ -113,7 +113,7 @@ function AuthPage() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="البريد الإلكتروني"
-          className="h-11 rounded-lg border-rule bg-panel text-ink"
+          className="h-11 rounded-lg border-rule bg-paper text-ink"
         />
         <Input
           type="password"
@@ -121,7 +121,7 @@ function AuthPage() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="كلمة المرور"
-          className="h-11 rounded-lg border-rule bg-panel text-ink"
+          className="h-11 rounded-lg border-rule bg-paper text-ink"
         />
         <button
           onClick={() => void submit()}
