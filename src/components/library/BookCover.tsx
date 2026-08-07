@@ -1,16 +1,6 @@
-const palettes = [
-  "bg-[oklch(0.93_0.02_85)] text-[oklch(0.28_0.03_55)]",
-  "bg-[oklch(0.88_0.05_150)] text-[oklch(0.26_0.04_150)]",
-  "bg-[oklch(0.3_0.05_265)] text-[oklch(0.96_0.01_265)]",
-  "bg-[oklch(0.9_0.06_30)] text-[oklch(0.3_0.06_30)]",
-  "bg-[oklch(0.32_0.03_62)] text-[oklch(0.96_0.015_85)]",
+const covers = [
+  "bg-panel text-panel-ink",
 ];
-
-function hash(value: string) {
-  let total = 0;
-  for (let index = 0; index < value.length; index += 1) total += value.charCodeAt(index);
-  return total;
-}
 
 export interface CoverBook {
   id: string;
@@ -19,7 +9,7 @@ export interface CoverBook {
   cover_url?: string | null;
 }
 
-/** غلاف الكتاب: صورة إن وُجدت، وإلا غلاف مُولَّد من العنوان. */
+/** غلاف الكتاب: صورة إن وُجدت، وإلا غلاف داكن مُولَّد من العنوان. */
 export function BookCover({ book, className = "" }: { book: CoverBook; className?: string }) {
   if (book.cover_url) {
     return (
@@ -27,20 +17,19 @@ export function BookCover({ book, className = "" }: { book: CoverBook; className
         src={book.cover_url}
         alt={`غلاف ${book.title}`}
         loading="lazy"
-        className={`overflow-hidden rounded-lg object-cover shadow-[0_8px_18px_-10px_rgb(0_0_0/0.5)] ${className}`}
+        className={`overflow-hidden rounded-[1.25rem] object-cover ${className}`}
       />
     );
   }
 
-  const palette = palettes[hash(book.id) % palettes.length];
   return (
     <div
-      className={`flex flex-col justify-between overflow-hidden rounded-lg p-2.5 shadow-[0_8px_18px_-10px_rgb(0_0_0/0.5)] ${palette} ${className}`}
+      className={`flex flex-col justify-between overflow-hidden rounded-[1.25rem] p-3 ${covers[0]} ${className}`}
     >
-      <span className="line-clamp-3 font-reading text-[13px] leading-5 font-medium">
+      <span className="line-clamp-3 text-right font-reading text-[12px] leading-5 font-medium">
         {book.title}
       </span>
-      <span className="text-[9px] opacity-70">{book.author}</span>
+      <span className="text-right text-[9px] opacity-70">{book.author}</span>
     </div>
   );
 }
