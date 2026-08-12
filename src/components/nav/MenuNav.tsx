@@ -1,22 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  BookOpen,
-  Compass,
-  Highlighter,
-  Library,
-  Moon,
-  PenLine,
-  ShoppingBag,
-  Sun,
-  User,
-} from "lucide-react";
-import { CloseIcon, MenuIcon } from "@/components/icons/AppIcons";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { BookOpen, Compass, Home, Library, Moon, Sun, User } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useSiteTheme } from "@/hooks/use-site-theme";
+import { fetchHistory, type BookWithCategory } from "@/lib/books-api";
 
-
-type RoutePath = "/" | "/library" | "/highlights" | "/store" | "/account" | "/studio";
+type RoutePath = "/" | "/shelves" | "/library" | "/account";
 
 interface Item {
   to: RoutePath;
@@ -24,121 +13,131 @@ interface Item {
   icon: typeof Library;
 }
 
-const baseItems: Item[] = [
-  { to: "/", label: "الرئيسية", icon: Library },
-  { to: "/library", label: "المكتبة", icon: BookOpen },
-  { to: "/highlights", label: "التظليلات", icon: Highlighter },
-  { to: "/store", label: "المتجر", icon: ShoppingBag },
+/* ترتيب RTL: الرئيسية أقصى اليمين ثم رفوفي — الزر الأوسط مركز القراءة */
+const rightItems: Item[] = [
+  { to: "/", label: "الرئيسية", icon: Home },
+  { to: "/shelves", label: "رفوفي", icon: Library },
+];
+const leftItems: Item[] = [
+  { to: "/library", label: "استكشف", icon: Compass },
   { to: "/account", label: "حسابي", icon: User },
 ];
 
-const rowClass =
-  "flex items-center justify-end gap-2.5 rounded-2xl py-2.5 pr-4 pl-4 text-sm font-medium shadow-[0_10px_24px_-14px_rgb(0_0_0/0.6)] transition-colors";
-
-/** زر قائمة عائم يفتح شريط تنقّل عمودي منبثق (RTL: أقصى اليمين). */
+/** شريط تنقّل سفلي من خمسة أزرار مع مركز قراءة في الوسط. */
 export function MenuNav({ extra, bottomClass = "bottom-5" }: { extra?: ReactNode; bottomClass?: string }) {
   const [open, setOpen] = useState(false);
-  const { isAdmin } = useAuth();
+  const [reading, setReading] = useState<{ book: BookWithCategory; ratio: number }[]>([]);
+  const { user } = useAuth();
   const { theme, toggle } = useSiteTheme();
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  const items: Item[] = isAdmin
-    ? [...baseItems, { to: "/studio", label: "لوحة الكتابة", icon: PenLine }]
-    : baseItems;
+  useEffect(() => {
+    if (!user || !open) return;
+    void fetchHistory(user.id).then((rows) =>
+      setReading(
+        rows
+          .filter((row) => !!row.books)
+          .map((row) => ({ book: row.books as BookWithCategory, ratio: row.ratio })),
+      ),
+    );
+  }, [user, open]);
+
+  const isActive = (to: RoutePath) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
 
   return (
     <div
       dir="rtl"
-      className={`pointer-events-none fixed inset-x-0 ${bottomClass} z-50 mx-auto flex w-full max-w-md flex-col items-end px-5`}
+      className={`pointer-events-none fixed inset-x-0 ${bottomClass} z-50 mx-auto flex w-full max-w-md flex-col items-center px-5`}
     >
       {open ? (
         <button
-          aria-label="إغلاق القائمة"
+          aria-label="إغلاق مركز القراءة"
           onClick={() => setOpen(false)}
           className="pointer-events-auto fixed inset-0 -z-10 cursor-default bg-ink/25 backdrop-blur-[2px]"
         />
       ) : null}
 
-      <ul
-        className={`mb-3 flex flex-col items-end gap-2 transition-all duration-200 ${
-          open ? "pointer-events-auto" : "pointer-events-none"
-        }`}
-      >
-        {items.map((item, index) => {
-          const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
-          /* الأقرب إلى الزر يظهر أولاً ثم يصعد الباقي للأعلى */
-          const delay = open ? (items.length - index) * 35 : 0;
-          return (
-            <li
-              key={item.to}
-              style={{ transitionDelay: `${delay}ms`, transformOrigin: "bottom center" }}
-              className={`transition-all duration-200 ease-out ${
-                open
-                  ? "translate-y-0 scale-100 opacity-100"
-                  : "translate-y-8 scale-90 opacity-0"
-              }`}
+      {open ? (
+        <div className="pointer-events-auto mb-3 w-full overflow-hidden rounded-[1.5rem] bg-panel p-3 text-panel-ink shadow-[0_18px_36px_-18px_rgb(0_0_0/0.7)]">
+          <div className="flex items-center justify-between px-1 pb-2">
+            <span className="text-sm font-medium">مركز القراءة</span>
+            <button
+              onClick={toggle}
+              aria-label="تبديل الوضع"
+              className="grid size-8 place-items-center rounded-full bg-panel-rule"
             >
-              <Link
-                to={item.to}
-                className={`${rowClass} ${
-                  active
-                    ? "bg-brand text-brand-ink"
-                    : "bg-panel text-panel-ink hover:bg-panel-rule"
-                }`}
-              >
-                {item.label}
-                <item.icon className="size-4 shrink-0 opacity-80" />
-              </Link>
-            </li>
-          );
-        })}
+              {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            </button>
+          </div>
+          <ul className="max-h-64 space-y-1 overflow-y-auto">
+            {reading.map(({ book, ratio }) => (
+              <li key={book.id}>
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    void navigate({ to: "/read/$bookId", params: { bookId: book.id } });
+                  }}
+                  className="w-full rounded-2xl px-3 py-2.5 text-right transition-colors hover:bg-panel-rule"
+                >
+                  <span className="block truncate text-sm">{book.title}</span>
+                  <span className="mt-1 block h-1 overflow-hidden rounded-full bg-panel-rule">
+                    <span
+                      className="block h-full rounded-full bg-panel-ink/70"
+                      style={{ width: `${Math.round(ratio * 100)}%` }}
+                    />
+                  </span>
+                </button>
+              </li>
+            ))}
+            {reading.length === 0 ? (
+              <li className="px-3 py-6 text-center text-xs text-panel-ink/60">
+                {user ? "لم تبدأ قراءة أي كتاب بعد." : "سجّل الدخول لمتابعة قراءاتك."}
+              </li>
+            ) : null}
+          </ul>
+        </div>
+      ) : null}
 
-        <li
-          style={{ transitionDelay: "0ms", transformOrigin: "bottom center" }}
-          className={`transition-all duration-200 ease-out ${
-            open ? "translate-y-0 scale-100 opacity-100" : "translate-y-8 scale-90 opacity-0"
-          }`}
+      {extra ? <div className="pointer-events-auto mb-3 flex flex-col items-center gap-3">{extra}</div> : null}
+
+      <nav className="pointer-events-auto flex w-full items-center justify-between rounded-full bg-panel px-5 py-2.5 text-panel-ink shadow-[0_14px_28px_-16px_rgb(0_0_0/0.7)]">
+        {rightItems.map((item) => (
+          <NavItem key={item.to} item={item} active={isActive(item.to)} />
+        ))}
+
+        <button
+          onClick={() => setOpen((value) => !value)}
+          aria-label="مركز القراءة"
+          aria-expanded={open}
+          className="-my-4 grid size-14 shrink-0 place-items-center rounded-full bg-brand text-brand-ink shadow-[0_10px_22px_-12px_rgb(0_0_0/0.8)] transition-transform active:scale-95"
         >
-          <button
-            onClick={toggle}
-            className={`${rowClass} bg-panel text-panel-ink hover:bg-panel-rule`}
-          >
-            {theme === "dark" ? "الوضع الفاتح" : "الوضع الداكن"}
-            {theme === "dark" ? (
-              <Sun className="size-4 shrink-0 opacity-80" />
-            ) : (
-              <Moon className="size-4 shrink-0 opacity-80" />
-            )}
-          </button>
-        </li>
+          <BookOpen className="size-6" />
+        </button>
 
-        <li
-          style={{ transitionDelay: "0ms", transformOrigin: "bottom center" }}
-          className={`transition-all duration-200 ease-out ${
-            open ? "translate-y-0 scale-100 opacity-100" : "translate-y-8 scale-90 opacity-0"
-          }`}
-        >
-          <span className="flex items-center gap-2 rounded-2xl bg-panel/70 px-3 py-1.5 text-[11px] text-panel-ink/60">
-            تصفّح
-            <Compass className="size-3.5" />
-          </span>
-        </li>
-      </ul>
-
-      {extra ? <div className="pointer-events-auto mb-3 flex flex-col gap-3">{extra}</div> : null}
-
-      <button
-        onClick={() => setOpen((value) => !value)}
-        aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
-        aria-expanded={open}
-        className="pointer-events-auto flex size-14 items-center justify-center rounded-3xl bg-brand text-brand-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
-      >
-        {open ? <CloseIcon className="size-6" /> : <MenuIcon className="size-6" />}
-      </button>
+        {leftItems.map((item) => (
+          <NavItem key={item.to} item={item} active={isActive(item.to)} />
+        ))}
+      </nav>
     </div>
+  );
+}
+
+function NavItem({ item, active }: { item: Item; active: boolean }) {
+  return (
+    <Link
+      to={item.to}
+      aria-label={item.label}
+      className={`flex w-14 flex-col items-center gap-1 py-1 transition-opacity ${
+        active ? "opacity-100" : "opacity-55"
+      }`}
+    >
+      <item.icon className="size-5" strokeWidth={1.7} />
+      <span className="text-[10px] leading-none">{item.label}</span>
+    </Link>
   );
 }

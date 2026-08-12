@@ -157,25 +157,38 @@
   --font-logo: "Lyon Arabic", "IBM Plex Sans Arabic", serif;
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
+  --color-dash-bg: var(--dash-bg);
+  --color-dash-surface: var(--dash-surface);
+  --color-dash-fg: var(--dash-fg);
+  --color-dash-muted: var(--dash-muted);
+  --color-dash-border: var(--dash-border);
+  --color-dash-accent: var(--dash-accent);
+  --color-success: oklch(0.58 0.11 150);
+  --color-warning: oklch(0.68 0.13 75);
 }
 
 /* ---------------------------------------------------------------
- * هوية الموقع (خارج القارئ): كريمي دافئ + بنّي داكن فقط
+ * هوية الموقع (خارج القارئ): #F5F3EF خلفية — #241C15 عناصر داكنة
  * --------------------------------------------------------------- */
 
-/* #F5EFE3 خلفية — #38291C عناصر داكنة */
 .site-cream {
-  --paper: oklch(0.9509 0.0166 84.5);
-  --ink: oklch(0.2836 0.0264 55);
-  --ink-soft: oklch(0.4462 0.0264 55);
-  --chrome: oklch(0.2836 0.0264 55);
-  --chrome-ink: oklch(0.9509 0.0166 84.5);
-  --rule: oklch(0.8809 0.0166 84.5);
-  --panel: oklch(0.2836 0.0264 55);
-  --panel-ink: oklch(0.9509 0.0166 84.5);
-  --panel-rule: oklch(0.9509 0.0166 84.5 / 16%);
-  --brand: oklch(0.2836 0.0264 55);
-  --brand-ink: oklch(0.9509 0.0166 84.5);
+  --paper: #f5f3ef;
+  --ink: #241c15;
+  --ink-soft: #6b6055;
+  --chrome: #241c15;
+  --chrome-ink: #f5f3ef;
+  --rule: #e2ddd4;
+  --panel: #241c15;
+  --panel-ink: #f5f3ef;
+  --panel-rule: #f5f3ef29;
+  --brand: #241c15;
+  --brand-ink: #f5f3ef;
+  --dash-bg: #f5f3ef;
+  --dash-surface: #ffffff;
+  --dash-fg: #241c15;
+  --dash-muted: #6b6055;
+  --dash-border: #e2ddd4;
+  --dash-accent: #8a5a2b;
   --hl-yellow: oklch(0.92 0.15 95 / 55%);
   --hl-green: oklch(0.88 0.14 150 / 45%);
   --hl-blue: oklch(0.88 0.1 240 / 45%);
@@ -183,22 +196,60 @@
 }
 
 .site-dark {
-  --paper: oklch(0.216 0 0);
-  --ink: oklch(0.9509 0.0166 84.5);
-  --ink-soft: oklch(0.72 0.012 84.5);
-  --chrome: oklch(0.29 0.004 85);
-  --chrome-ink: oklch(0.9509 0.0166 84.5);
-  --rule: oklch(0.34 0.004 85);
-  --panel: oklch(0.9509 0.0166 84.5);
-  --panel-ink: oklch(0.2836 0.0264 55);
-  --panel-rule: oklch(0.2836 0.0264 55 / 14%);
-  --brand: oklch(0.9509 0.0166 84.5);
-  --brand-ink: oklch(0.2836 0.0264 55);
+  --paper: #171717;
+  --ink: #f0ebe2;
+  --ink-soft: #a89c8d;
+  --chrome: #241c15;
+  --chrome-ink: #f0ebe2;
+  --rule: #2f2c28;
+  --panel: #f0ebe2;
+  --panel-ink: #241c15;
+  --panel-rule: #241c1524;
+  --brand: #d9c3a3;
+  --brand-ink: #241c15;
+  --dash-bg: #171717;
+  --dash-surface: #1f1e1c;
+  --dash-fg: #f0ebe2;
+  --dash-muted: #a89c8d;
+  --dash-border: #322f2b;
+  --dash-accent: #d9c3a3;
   --hl-yellow: oklch(0.92 0.15 95 / 55%);
   --hl-green: oklch(0.88 0.14 150 / 45%);
   --hl-blue: oklch(0.88 0.1 240 / 45%);
   --hl-pink: oklch(0.88 0.11 355 / 45%);
 }
+
+/* محرّر المخطوطة */
+.manuscript {
+  line-height: 2;
+  font-size: 1.0625rem;
+}
+.manuscript h1,
+.manuscript h2,
+.manuscript h3 {
+  font-weight: 600;
+  margin-block: 0.8em 0.4em;
+}
+.manuscript h1 { font-size: 1.5rem; }
+.manuscript h2 { font-size: 1.25rem; }
+.manuscript h3 { font-size: 1.1rem; }
+.manuscript p { margin-block: 0.6em; }
+.manuscript blockquote {
+  border-inline-start: 2px solid var(--dash-border);
+  padding-inline-start: 0.75rem;
+  color: var(--dash-muted);
+}
+.manuscript ul { list-style: disc; padding-inline-start: 1.4rem; }
+.manuscript ol { list-style: decimal; padding-inline-start: 1.4rem; }
+.manuscript hr { border-top: 1px solid var(--dash-border); margin-block: 1.2em; }
+.manuscript p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--dash-muted);
+  float: inline-start;
+  height: 0;
+  pointer-events: none;
+}
+
 
 
 .paper-light {

@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as HighlightsRouteImport } from './routes/highlights'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as ShelvesRouteImport } from './routes/shelves'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as AuthorAuthorIdRouteImport } from './routes/author.$authorId'
@@ -51,6 +52,11 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShelvesRoute = ShelvesRouteImport.update({
+  id: '/shelves',
+  path: '/shelves',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
   path: '/store',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/categories': typeof CategoriesRoute
   '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
+  '/shelves': typeof ShelvesRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
   '/author/$authorId': typeof AuthorAuthorIdRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/categories': typeof CategoriesRoute
   '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
+  '/shelves': typeof ShelvesRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
   '/author/$authorId': typeof AuthorAuthorIdRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/categories': typeof CategoriesRoute
   '/highlights': typeof HighlightsRoute
   '/library': typeof LibraryRoute
+  '/shelves': typeof ShelvesRoute
   '/store': typeof StoreRoute
   '/studio': typeof StudioRoute
   '/author/$authorId': typeof AuthorAuthorIdRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/highlights'
     | '/library'
+    | '/shelves'
     | '/store'
     | '/studio'
     | '/author/$authorId'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/highlights'
     | '/library'
+    | '/shelves'
     | '/store'
     | '/studio'
     | '/author/$authorId'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/categories'
     | '/highlights'
     | '/library'
+    | '/shelves'
     | '/store'
     | '/studio'
     | '/author/$authorId'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   CategoriesRoute: typeof CategoriesRoute
   HighlightsRoute: typeof HighlightsRoute
   LibraryRoute: typeof LibraryRoute
+  ShelvesRoute: typeof ShelvesRoute
   StoreRoute: typeof StoreRoute
   StudioRoute: typeof StudioRoute
   AuthorAuthorIdRoute: typeof AuthorAuthorIdRoute
@@ -217,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shelves': {
+      id: '/shelves'
+      path: '/shelves'
+      fullPath: '/shelves'
+      preLoaderRoute: typeof ShelvesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/store': {
       id: '/store'
       path: '/store'
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   CategoriesRoute: CategoriesRoute,
   HighlightsRoute: HighlightsRoute,
   LibraryRoute: LibraryRoute,
+  ShelvesRoute: ShelvesRoute,
   StoreRoute: StoreRoute,
   StudioRoute: StudioRoute,
   AuthorAuthorIdRoute: AuthorAuthorIdRoute,
@@ -271,3 +292,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
