@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { PenLine } from "lucide-react";
 import { AppPage } from "@/components/layout/AppPage";
 import { BookCover } from "@/components/library/BookCover";
 import { BookGrid } from "@/components/library/BookGrid";
@@ -38,7 +39,7 @@ const quotes = [
 ];
 
 function HomePage() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [books, setBooks] = useState<BookWithCategory[]>([]);
   const [mine, setMine] = useState<BookWithCategory[]>([]);
