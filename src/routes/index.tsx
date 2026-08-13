@@ -83,6 +83,17 @@ function HomePage() {
     <AppPage
       hideBack
       raiseNav={!!current}
+      navExtra={
+        isAdmin ? (
+          <Link
+            to="/studio"
+            aria-label="لوحة النشر"
+            className="pointer-events-auto grid size-12 place-items-center rounded-full bg-panel text-panel-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
+          >
+            <PenLine className="size-5" />
+          </Link>
+        ) : null
+      }
       header={
         <header className="flex items-start justify-between gap-4 pt-4">
           <div className="text-right">
@@ -93,13 +104,14 @@ function HomePage() {
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="بحث"
-            className="grid size-14 shrink-0 place-items-center rounded-full bg-panel text-panel-ink transition-transform active:scale-95"
+            className="grid size-10 shrink-0 place-items-center rounded-full bg-panel text-panel-ink transition-transform active:scale-95"
           >
-            <SearchIcon className="size-6" />
+            <SearchIcon className="size-4" />
           </button>
         </header>
       }
     >
+
       <QuoteBanner text={quote.text} author={quote.author} />
 
       <section className="mt-7">
