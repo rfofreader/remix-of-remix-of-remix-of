@@ -14,9 +14,9 @@ import {
 export const Route = createFileRoute("/library")({
   head: () => ({
     meta: [
-      { title: "المكتبة — رفوف" },
+      { title: "الكتب — استكشف رفوف" },
       { name: "description", content: "تصفّح كل الكتب المتاحة وابحث فيها حسب العنوان أو المؤلف." },
-      { property: "og:title", content: "المكتبة — رفوف" },
+      { property: "og:title", content: "الكتب — استكشف رفوف" },
       { property: "og:description", content: "كل الكتب في مكان واحد." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -46,7 +46,7 @@ function LibraryPage() {
   }, [books, query, category]);
 
   return (
-    <AppPage title="المكتبة" subtitle={`${books.length} كتاب`}>
+    <AppPage title="الكتب" subtitle={`${books.length} كتاب`}>
       <div className="relative mt-5">
         <Search className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-ink-soft" />
         <Input
