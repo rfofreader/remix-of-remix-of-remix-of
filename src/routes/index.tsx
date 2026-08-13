@@ -125,7 +125,7 @@ function HomePage() {
       </section>
 
       <section className="mt-7">
-        <h2 className="text-right text-base font-semibold text-ink">مكتبتي</h2>
+        <h2 className="text-right text-base font-semibold text-ink">رفوفي</h2>
         {mine.length ? (
           <BookGrid books={mine.slice(0, 3)} />
         ) : (
