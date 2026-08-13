@@ -1,10 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Save, Trash2, Type, Upload } from "lucide-react";
-import { AppPage } from "@/components/layout/AppPage";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Plus, Save, Trash2, Upload } from "lucide-react";
+import { DashboardShell, Field, FieldGroup, type DashTab } from "@/components/studio/DashboardShell";
+import { ManuscriptEditor } from "@/components/studio/ManuscriptEditor";
 import { useAuth } from "@/hooks/use-auth";
 import {
   fetchAuthors,
@@ -22,14 +21,14 @@ import {
   type CategoryRow,
 } from "@/lib/books-api";
 import { newVolume, toVolumes, type BookVolume } from "@/lib/book-content";
-import { FormatToolbar, type FormatAction } from "@/components/studio/FormatToolbar";
+import { htmlToMarkdown, markdownToHtml } from "@/lib/markdown-html";
 
 export const Route = createFileRoute("/studio")({
   head: () => ({
     meta: [
-      { title: "لوحة الكتابة — رفوفي" },
-      { name: "description", content: "لوحة المشرف لإضافة الكتب والمؤلفين والتصنيفات وتحرير المحتوى." },
-      { property: "og:title", content: "لوحة الكتابة — رفوفي" },
+      { title: "لوحة النشر — رفوف" },
+      { name: "description", content: "لوحة المشرف لإدارة الكتب والمؤلفين والتصنيفات وتحرير المخطوطات." },
+      { property: "og:title", content: "لوحة النشر — رفوف" },
       { property: "og:description", content: "إدارة الكتب والمؤلفين والتصنيفات." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -38,8 +37,6 @@ export const Route = createFileRoute("/studio")({
   }),
   component: StudioPage,
 });
-
-type Tab = "book" | "authors" | "categories";
 
 interface Draft {
   id?: string;
@@ -75,7 +72,7 @@ const emptyDraft = (): Draft => ({
 function StudioPage() {
   const { loading, user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("book");
+  const [tab, setTab] = useState<DashTab>("overview");
   const [books, setBooks] = useState<BookWithCategory[]>([]);
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [authors, setAuthors] = useState<AuthorRow[]>([]);
@@ -84,8 +81,7 @@ function StudioPage() {
   const [categoryName, setCategoryName] = useState("");
   const [authorDraft, setAuthorDraft] = useState({ name: "", bio: "", photo_url: "" });
   const [busy, setBusy] = useState(false);
-  const [formatOpen, setFormatOpen] = useState(false);
-  const editorRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const refresh = () => {
     void fetchBooks().then(setBooks);
@@ -100,9 +96,11 @@ function StudioPage() {
       return;
     }
     if (isAdmin) refresh();
-  }, [loading, user, isAdmin, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user, isAdmin]);
 
-  const volume = draft.volumes[activeVolume] ?? draft.volumes[0];
+  const volume = draft.volumes[activeVolume] ?? draft.volumes[0]!;
+  const editorHtml = useMemo(() => markdownToHtml(volume.markdown), [volume.id, activeVolume]);
 
   const patchVolume = (patch: Partial<BookVolume>) => {
     setDraft((current) => ({
@@ -113,41 +111,9 @@ function StudioPage() {
     }));
   };
 
-  /* إدراج تنسيق ماركداون في موضع المؤشر داخل المحرر */
-  const applyFormat = (action: FormatAction) => {
-    const el = editorRef.current;
-    if (!el) return;
-    const value = el.value;
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-
-    let next: string;
-    let caret: number;
-    if (action.line) {
-      const lineStart = value.lastIndexOf("\n", start - 1) + 1;
-      next = value.slice(0, lineStart) + action.prefix + value.slice(lineStart);
-      caret = start + action.prefix.length;
-    } else {
-      const selected = value.slice(start, end);
-      next =
-        value.slice(0, start) +
-        action.prefix +
-        selected +
-        (action.suffix ?? "") +
-        value.slice(end);
-      caret = start + action.prefix.length + selected.length;
-    }
-
-    patchVolume({ markdown: next });
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(caret, caret);
-    });
-  };
-
   const editBook = (book: BookWithCategory) => {
     const volumes = toVolumes(book.content);
-    setTab("book");
+    setTab("books");
     setDraft({
       id: book.id,
       title: book.title,
@@ -189,7 +155,7 @@ function StudioPage() {
         category_id: draft.category_id || null,
         content: draft.volumes,
       });
-      toast.success(draft.id ? "تم حفظ التعديلات" : "تمت إضافة الكتاب");
+      toast.success(draft.id ? "تم حفظ التعديلات" : "تم نشر الكتاب");
       setDraft(emptyDraft());
       setActiveVolume(0);
       refresh();
@@ -200,189 +166,307 @@ function StudioPage() {
     }
   };
 
-  const stats = useMemo(
-    () => ({
-      words: draft.volumes.reduce(
-        (sum, item) => sum + item.markdown.trim().split(/\s+/).filter(Boolean).length,
-        0,
-      ),
-    }),
-    [draft.volumes],
-  );
-
-  if (loading) {
-    return <AppPage title="لوحة الكتابة">{null}</AppPage>;
-  }
+  if (loading) return null;
 
   if (!isAdmin) {
     return (
-      <AppPage title="لوحة الكتابة" subtitle="هذه الصفحة للمشرفين فقط">
-        <p className="mt-8 text-sm leading-7 text-ink-soft">
-          حسابك الحالي لا يملك صلاحية المشرف.
-        </p>
-        <Link to="/" className="mt-4 inline-block text-sm text-ink underline">
+      <div dir="rtl" className="min-h-dvh bg-dash-bg p-6 text-dash-fg">
+        <h1 className="text-lg font-semibold">لوحة النشر</h1>
+        <p className="mt-3 text-sm text-dash-muted">حسابك الحالي لا يملك صلاحية المشرف.</p>
+        <Link to="/" className="mt-4 inline-block text-sm underline">
           العودة إلى الرئيسية
         </Link>
-      </AppPage>
+      </div>
     );
   }
 
-  const dock =
-    tab === "book" ? (
-      <>
-        <button
-          onClick={() => void submit()}
-          disabled={busy}
-          aria-label={draft.id ? "حفظ التعديلات" : "نشر الكتاب"}
-          className="flex size-14 items-center justify-center rounded-3xl bg-brand text-brand-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95 disabled:opacity-60"
-        >
-          <Save className="size-6" />
-        </button>
-        <button
-          onClick={() => setFormatOpen((value) => !value)}
-          aria-label="لوحة التنسيق"
-          className="flex size-14 items-center justify-center rounded-3xl bg-panel text-panel-ink shadow-[0_14px_28px_-14px_rgb(0_0_0/0.7)] transition-transform active:scale-95"
-        >
-          <Type className="size-6" />
-        </button>
-      </>
-    ) : null;
+  const words = draft.volumes.reduce(
+    (sum, item) => sum + item.markdown.trim().split(/\s+/).filter(Boolean).length,
+    0,
+  );
 
   return (
-    <AppPage
-      title="لوحة الكتابة"
-      subtitle={`${books.length} كتاب • ${authors.length} مؤلف • ${stats.words} كلمة في المسودة`}
-      navExtra={dock}
+    <DashboardShell
+      tab={tab}
+      onTab={setTab}
+      title={
+        tab === "overview"
+          ? "نظرة عامة"
+          : tab === "books"
+            ? draft.id
+              ? "تحرير كتاب"
+              : "كتاب جديد"
+            : tab === "authors"
+              ? "المؤلفون"
+              : "التصنيفات"
+      }
+      subtitle={`${books.length} كتاب · ${authors.length} مؤلف · ${categories.length} تصنيف`}
+      actions={
+        tab === "books" ? (
+          <button
+            onClick={() => void submit()}
+            disabled={busy}
+            className="flex min-h-10 items-center gap-1.5 rounded-md bg-dash-fg px-3 text-[0.8125rem] text-dash-surface disabled:opacity-60"
+          >
+            <Save className="size-4" strokeWidth={1.6} />
+            {draft.id ? "حفظ" : "نشر"}
+          </button>
+        ) : null
+      }
     >
-      <div className="mt-5 flex gap-2">
-        <TabButton active={tab === "book"} onClick={() => setTab("book")} label="كتاب جديد" />
-        <TabButton active={tab === "authors"} onClick={() => setTab("authors")} label="المؤلفون" />
-        <TabButton
-          active={tab === "categories"}
-          onClick={() => setTab("categories")}
-          label="التصنيفات"
-        />
-      </div>
+      {tab === "overview" ? (
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Stat label="الكتب" value={books.length} />
+          <Stat label="المؤلفون" value={authors.length} />
+          <Stat label="التصنيفات" value={categories.length} />
+          <section className="rounded-lg border border-dash-border bg-dash-surface p-4 sm:col-span-3">
+            <h2 className="mb-3 text-sm font-semibold">أحدث الكتب</h2>
+            <ul className="divide-y divide-dash-border">
+              {books.slice(0, 8).map((book) => (
+                <li key={book.id}>
+                  <button
+                    onClick={() => editBook(book)}
+                    className="flex w-full items-center justify-between gap-3 py-2.5 text-start"
+                  >
+                    <span className="min-w-0 truncate text-sm">{book.title}</span>
+                    <span className="shrink-0 text-[0.75rem] text-dash-muted">{book.author}</span>
+                  </button>
+                </li>
+              ))}
+              {books.length === 0 ? <li className="py-6 text-center text-sm text-dash-muted">لا كتب بعد.</li> : null}
+            </ul>
+          </section>
+        </div>
+      ) : null}
+
+      {tab === "books" ? (
+        <div className="grid gap-3">
+          <FieldGroup title="بيانات الكتاب">
+            <Field label="العنوان" value={draft.title} onChange={(v) => setDraft({ ...draft, title: v })} />
+            <Field label="المؤلف" value={draft.author} onChange={(v) => setDraft({ ...draft, author: v })} />
+            <Field label="الناشر" value={draft.publisher} onChange={(v) => setDraft({ ...draft, publisher: v })} />
+            <Field label="سنة النشر" value={draft.published_date} onChange={(v) => setDraft({ ...draft, published_date: v })} />
+            <Field label="عدد الصفحات" value={draft.page_count} onChange={(v) => setDraft({ ...draft, page_count: v })} />
+            <Field label="السعر" value={draft.price} onChange={(v) => setDraft({ ...draft, price: v })} />
+            <Field label="رابط التحميل" value={draft.download_url} onChange={(v) => setDraft({ ...draft, download_url: v })} placeholder="https://…" />
+            <Field label="رابط الغلاف" value={draft.cover_url} onChange={(v) => setDraft({ ...draft, cover_url: v })} placeholder="https://…" />
+            <Field label="نبذة" full textarea value={draft.description} onChange={(v) => setDraft({ ...draft, description: v })} />
+
+            <label className="block">
+              <span className="mb-1 block text-[0.75rem] text-dash-muted">التصنيف</span>
+              <select
+                value={draft.category_id}
+                onChange={(event) => setDraft({ ...draft, category_id: event.target.value })}
+                className="w-full rounded-md border border-dash-border bg-dash-bg px-3 py-2.5 text-sm outline-none"
+              >
+                <option value="">بدون تصنيف</option>
+                {categories.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="block">
+              <span className="mb-1 block text-[0.75rem] text-dash-muted">المؤلف المرتبط</span>
+              <select
+                value={draft.author_id}
+                onChange={(event) => setDraft({ ...draft, author_id: event.target.value })}
+                className="w-full rounded-md border border-dash-border bg-dash-bg px-3 py-2.5 text-sm outline-none"
+              >
+                <option value="">بدون ربط</option>
+                {authors.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="sm:col-span-2 flex items-center gap-3">
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={async (event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadCover(file);
+                    setDraft((current) => ({ ...current, cover_url: url }));
+                    toast.success("تم رفع الغلاف");
+                  } catch (error) {
+                    toast.error(error instanceof Error ? error.message : "تعذّر الرفع");
+                  }
+                }}
+              />
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="flex min-h-10 items-center gap-1.5 rounded-md border border-dash-border px-3 text-[0.8125rem]"
+              >
+                <Upload className="size-4" strokeWidth={1.6} />
+                رفع غلاف
+              </button>
+              {draft.cover_url ? (
+                <img src={draft.cover_url} alt="معاينة الغلاف" className="h-16 w-12 rounded-md object-cover" />
+              ) : null}
+            </div>
+          </FieldGroup>
+
+          <section className="rounded-lg border border-dash-border bg-dash-surface p-4">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold">المخطوطة</h2>
+              <button
+                onClick={() => {
+                  setDraft((current) => ({
+                    ...current,
+                    volumes: [...current.volumes, newVolume(current.volumes.length + 1)],
+                  }));
+                  setActiveVolume(draft.volumes.length);
+                }}
+                className="flex min-h-9 items-center gap-1 rounded-md border border-dash-border px-2.5 text-[0.75rem]"
+              >
+                <Plus className="size-3.5" />
+                جزء جديد
+              </button>
+            </div>
+            <div className="mb-3 flex gap-1 overflow-x-auto">
+              {draft.volumes.map((item, index) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveVolume(index)}
+                  className={`min-h-9 shrink-0 rounded-md px-3 text-[0.75rem] ${
+                    index === activeVolume ? "bg-dash-fg/10 font-medium" : "text-dash-muted"
+                  }`}
+                >
+                  {item.title}
+                </button>
+              ))}
+            </div>
+            <Field label="عنوان الجزء" value={volume.title} onChange={(v) => patchVolume({ title: v })} />
+            <div className="mt-3">
+              <ManuscriptEditor
+                key={`${draft.id ?? "new"}-${volume.id}`}
+                content={editorHtml}
+                onUpdate={(html) => patchVolume({ markdown: htmlToMarkdown(html) })}
+              />
+            </div>
+            <p className="mt-2 text-[0.7rem] text-dash-muted">{words} كلمة في المسودة</p>
+          </section>
+
+          <section className="rounded-lg border border-dash-border bg-dash-surface p-4">
+            <h2 className="mb-3 text-sm font-semibold">الكتب المنشورة</h2>
+            <ul className="divide-y divide-dash-border">
+              {books.map((book) => (
+                <li key={book.id} className="flex items-center justify-between gap-3 py-2.5">
+                  <button onClick={() => editBook(book)} className="min-w-0 flex-1 truncate text-start text-sm">
+                    {book.title}
+                  </button>
+                  <button
+                    aria-label={`حذف ${book.title}`}
+                    onClick={async () => {
+                      await removeBook(book.id);
+                      toast.success("تم الحذف");
+                      refresh();
+                    }}
+                    className="grid size-9 place-items-center rounded-md border border-dash-border text-dash-muted"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      ) : null}
+
+      {tab === "authors" ? (
+        <div className="grid gap-3">
+          <FieldGroup title="مؤلف جديد">
+            <Field label="الاسم" value={authorDraft.name} onChange={(v) => setAuthorDraft({ ...authorDraft, name: v })} />
+            <Field label="رابط الصورة" value={authorDraft.photo_url} onChange={(v) => setAuthorDraft({ ...authorDraft, photo_url: v })} />
+            <Field label="نبذة" full textarea value={authorDraft.bio} onChange={(v) => setAuthorDraft({ ...authorDraft, bio: v })} />
+            <div className="sm:col-span-2">
+              <button
+                onClick={async () => {
+                  if (!authorDraft.name.trim()) return;
+                  await saveAuthor({
+                    name: authorDraft.name.trim(),
+                    bio: authorDraft.bio.trim() || null,
+                    photo_url: authorDraft.photo_url.trim() || null,
+                  });
+                  setAuthorDraft({ name: "", bio: "", photo_url: "" });
+                  toast.success("تمت الإضافة");
+                  refresh();
+                }}
+                className="min-h-10 rounded-md bg-dash-fg px-3 text-[0.8125rem] text-dash-surface"
+              >
+                إضافة مؤلف
+              </button>
+            </div>
+          </FieldGroup>
+
+          <section className="rounded-lg border border-dash-border bg-dash-surface p-4">
+            <ul className="divide-y divide-dash-border">
+              {authors.map((author) => (
+                <li key={author.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                  <span className="min-w-0 truncate">{author.name}</span>
+                  <button
+                    aria-label={`حذف ${author.name}`}
+                    onClick={async () => {
+                      await removeAuthor(author.id);
+                      refresh();
+                    }}
+                    className="grid size-9 place-items-center rounded-md border border-dash-border text-dash-muted"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      ) : null}
 
       {tab === "categories" ? (
-        <section className="mt-5 rounded-lg bg-panel p-4">
-          <h2 className="font-reading text-base text-ink">التصنيفات</h2>
-          <div className="mt-3 flex gap-2">
-            <Input
+        <section className="rounded-lg border border-dash-border bg-dash-surface p-4">
+          <div className="flex gap-2">
+            <input
               value={categoryName}
               onChange={(event) => setCategoryName(event.target.value)}
               placeholder="اسم تصنيف جديد"
-              className="h-10 rounded-lg border-rule bg-paper text-ink"
+              className="min-h-10 flex-1 rounded-md border border-dash-border bg-dash-bg px-3 text-sm outline-none"
             />
             <button
               onClick={async () => {
                 const name = categoryName.trim();
                 if (!name) return;
-                try {
-                  await saveCategory({
-                    name,
-                    slug: name.replace(/\s+/g, "-"),
-                    description: null,
-                  });
-                  setCategoryName("");
-                  refresh();
-                } catch {
-                  toast.error("تعذّرت إضافة التصنيف");
-                }
+                await saveCategory({
+                  name,
+                  slug: name.replace(/\s+/g, "-"),
+                  description: null,
+                });
+                setCategoryName("");
+                refresh();
               }}
-              className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand text-brand-ink"
-              aria-label="إضافة تصنيف"
+              className="min-h-10 rounded-md bg-dash-fg px-3 text-[0.8125rem] text-dash-surface"
             >
-              <Plus className="size-4" />
+              إضافة
             </button>
           </div>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {categories.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-center gap-2 rounded-lg bg-paper px-3 py-1.5 text-xs text-ink"
-              >
-                {item.name}
+          <ul className="mt-3 divide-y divide-dash-border">
+            {categories.map((category) => (
+              <li key={category.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <span className="min-w-0 truncate">{category.name}</span>
                 <button
+                  aria-label={`حذف ${category.name}`}
                   onClick={async () => {
-                    await removeCategory(item.id);
+                    await removeCategory(category.id);
                     refresh();
                   }}
-                  aria-label={`حذف ${item.name}`}
-                  className="text-ink-soft"
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {tab === "authors" ? (
-        <section className="mt-5 rounded-lg bg-panel p-4">
-          <h2 className="font-reading text-base text-ink">المؤلفون</h2>
-          <Input
-            value={authorDraft.name}
-            onChange={(event) => setAuthorDraft((d) => ({ ...d, name: event.target.value }))}
-            placeholder="اسم المؤلف"
-            className="mt-3 h-10 rounded-lg border-rule bg-paper text-ink"
-          />
-          <Input
-            value={authorDraft.photo_url}
-            onChange={(event) => setAuthorDraft((d) => ({ ...d, photo_url: event.target.value }))}
-            placeholder="رابط صورة المؤلف (اختياري)"
-            className="mt-2 h-10 rounded-lg border-rule bg-paper text-ink"
-          />
-          <Textarea
-            value={authorDraft.bio}
-            onChange={(event) => setAuthorDraft((d) => ({ ...d, bio: event.target.value }))}
-            placeholder="نبذة عن المؤلف"
-            className="mt-2 min-h-20 rounded-lg border-rule bg-paper text-ink"
-          />
-          <button
-            onClick={async () => {
-              const name = authorDraft.name.trim();
-              if (!name) return;
-              try {
-                await saveAuthor({
-                  name,
-                  bio: authorDraft.bio.trim() || null,
-                  photo_url: authorDraft.photo_url.trim() || null,
-                });
-                setAuthorDraft({ name: "", bio: "", photo_url: "" });
-                refresh();
-                toast.success("تمت إضافة المؤلف");
-              } catch {
-                toast.error("تعذّرت إضافة المؤلف");
-              }
-            }}
-            className="mt-3 w-full rounded-lg bg-brand py-3 text-sm font-medium text-brand-ink"
-          >
-            إضافة مؤلف
-          </button>
-
-          <ul className="mt-4 space-y-2">
-            {authors.map((item) => (
-              <li
-                key={item.id}
-                className="flex items-center gap-3 rounded-lg bg-paper px-3 py-2.5 text-sm text-ink"
-              >
-                <span className="min-w-0 flex-1 truncate">{item.name}</span>
-                <Link
-                  to="/author/$authorId"
-                  params={{ authorId: item.id }}
-                  className="text-xs text-ink-soft underline"
-                >
-                  الصفحة
-                </Link>
-                <button
-                  onClick={async () => {
-                    await removeAuthor(item.id);
-                    refresh();
-                  }}
-                  aria-label={`حذف ${item.name}`}
-                  className="text-ink-soft"
+                  className="grid size-9 place-items-center rounded-md border border-dash-border text-dash-muted"
                 >
                   <Trash2 className="size-4" />
                 </button>
@@ -391,277 +475,15 @@ function StudioPage() {
           </ul>
         </section>
       ) : null}
-
-      {tab === "book" ? (
-        <>
-          <section className="mt-5 rounded-lg bg-panel p-4">
-            <h2 className="font-reading text-base text-ink">
-              {draft.id ? "تعديل كتاب" : "كتاب جديد"}
-            </h2>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <Field label="العنوان" value={draft.title} onChange={(title) => setDraft((d) => ({ ...d, title }))} full />
-              <Field label="اسم المؤلف (نص)" value={draft.author} onChange={(author) => setDraft((d) => ({ ...d, author }))} />
-              <label className="text-xs text-ink-soft">
-                ربط المؤلف
-                <select
-                  value={draft.author_id}
-                  onChange={(event) => {
-                    const author_id = event.target.value;
-                    const found = authors.find((item) => item.id === author_id);
-                    setDraft((d) => ({
-                      ...d,
-                      author_id,
-                      author: found ? found.name : d.author,
-                    }));
-                  }}
-                  className="mt-1 h-10 w-full rounded-lg border border-rule bg-paper px-2 text-sm text-ink"
-                >
-                  <option value="">بدون</option>
-                  {authors.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <Field label="الناشر" value={draft.publisher} onChange={(publisher) => setDraft((d) => ({ ...d, publisher }))} />
-              <Field label="تاريخ النشر" value={draft.published_date} onChange={(published_date) => setDraft((d) => ({ ...d, published_date }))} />
-              <Field label="عدد الصفحات" value={draft.page_count} onChange={(page_count) => setDraft((d) => ({ ...d, page_count }))} />
-              <Field label="السعر" value={draft.price} onChange={(price) => setDraft((d) => ({ ...d, price }))} />
-              <label className="text-xs text-ink-soft">
-                التصنيف
-                <select
-                  value={draft.category_id}
-                  onChange={(event) => setDraft((d) => ({ ...d, category_id: event.target.value }))}
-                  className="mt-1 h-10 w-full rounded-lg border border-rule bg-paper px-2 text-sm text-ink"
-                >
-                  <option value="">بدون</option>
-                  {categories.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <Field
-                label="رابط التحميل"
-                value={draft.download_url}
-                onChange={(download_url) => setDraft((d) => ({ ...d, download_url }))}
-                full
-              />
-            </div>
-
-            <div className="mt-3">
-              <p className="text-xs text-ink-soft">الغلاف</p>
-              <div className="mt-1 flex gap-2">
-                <Input
-                  value={draft.cover_url}
-                  onChange={(event) => setDraft((d) => ({ ...d, cover_url: event.target.value }))}
-                  placeholder="رابط صورة الغلاف"
-                  className="h-10 rounded-lg border-rule bg-paper text-ink"
-                />
-                <label
-                  className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-brand text-brand-ink"
-                  aria-label="رفع غلاف"
-                >
-                  <Upload className="size-4" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={async (event) => {
-                      const file = event.target.files?.[0];
-                      if (!file) return;
-                      try {
-                        const url = await uploadCover(file);
-                        setDraft((d) => ({ ...d, cover_url: url }));
-                        toast.success("تم رفع الغلاف");
-                      } catch {
-                        toast.error("تعذّر رفع الغلاف");
-                      }
-                    }}
-                  />
-                </label>
-              </div>
-              {draft.cover_url ? (
-                <img
-                  src={draft.cover_url}
-                  alt="معاينة الغلاف"
-                  className="mt-2 h-28 w-20 rounded-lg object-cover"
-                />
-              ) : null}
-            </div>
-
-            <label className="mt-3 block text-xs text-ink-soft">
-              نبذة
-              <Textarea
-                value={draft.description}
-                onChange={(event) => setDraft((d) => ({ ...d, description: event.target.value }))}
-                className="mt-1 min-h-20 rounded-lg border-rule bg-paper text-ink"
-              />
-            </label>
-          </section>
-
-          <section className="mt-5 rounded-lg bg-panel p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-reading text-base text-ink">المحتوى (ماركداون)</h2>
-              <button
-                onClick={() =>
-                  setDraft((d) => {
-                    const volumes = [...d.volumes, newVolume(d.volumes.length + 1)];
-                    setActiveVolume(volumes.length - 1);
-                    return { ...d, volumes };
-                  })
-                }
-                className="flex items-center gap-1 rounded-lg bg-paper px-3 py-1.5 text-xs text-ink"
-              >
-                <Plus className="size-3.5" /> مجلد
-              </button>
-            </div>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              {draft.volumes.map((item, index) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveVolume(index)}
-                  className={`rounded-lg px-3 py-1.5 text-xs ${
-                    index === activeVolume ? "bg-brand text-brand-ink" : "bg-paper text-ink-soft"
-                  }`}
-                >
-                  {item.title}
-                </button>
-              ))}
-            </div>
-
-            {volume ? (
-              <>
-                <Input
-                  value={volume.title}
-                  onChange={(event) => patchVolume({ title: event.target.value })}
-                  placeholder="اسم المجلد"
-                  className="mt-3 h-10 rounded-lg border-rule bg-paper text-ink"
-                />
-                <Textarea
-                  ref={editorRef}
-                  value={volume.markdown}
-                  onChange={(event) => patchVolume({ markdown: event.target.value })}
-                  dir="rtl"
-                  placeholder={"# عنوان رئيسي\n\n## عنوان فرعي\n\nنص الفقرة…"}
-                  className="mt-2 min-h-64 rounded-lg border-rule bg-paper font-quran text-[15px] leading-8 text-ink"
-                />
-                <p className="pt-2 text-[11px] leading-5 text-ink-soft">
-                  استخدم لوحة التنسيق العائمة لإضافة العناوين والقوائم والاقتباسات، أو اكتب
-                  الماركداون مباشرة.
-                </p>
-                {draft.volumes.length > 1 ? (
-                  <button
-                    onClick={() =>
-                      setDraft((d) => {
-                        const volumes = d.volumes.filter((_item, index) => index !== activeVolume);
-                        setActiveVolume(0);
-                        return { ...d, volumes };
-                      })
-                    }
-                    className="mt-2 text-xs text-ink-soft underline"
-                  >
-                    حذف هذا المجلد
-                  </button>
-                ) : null}
-              </>
-            ) : null}
-
-            {draft.id ? (
-              <button
-                onClick={() => {
-                  setDraft(emptyDraft());
-                  setActiveVolume(0);
-                }}
-                className="mt-4 w-full rounded-lg bg-paper py-3 text-sm text-ink"
-              >
-                مسودة جديدة
-              </button>
-            ) : null}
-          </section>
-
-          <section className="mt-5">
-            <h2 className="font-reading text-base text-ink">الكتب المنشورة</h2>
-            <ul className="mt-3 space-y-2">
-              {books.map((book) => (
-                <li
-                  key={book.id}
-                  className="flex items-center gap-3 rounded-lg bg-panel px-3 py-3 text-sm text-panel-ink"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{book.title}</span>
-                    <span className="block text-[11px] text-ink-soft">{book.author}</span>
-                  </span>
-                  <button onClick={() => editBook(book)} className="text-xs text-ink-soft underline">
-                    تحرير
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await removeBook(book.id);
-                      refresh();
-                    }}
-                    aria-label="حذف"
-                    className="text-ink-soft"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </>
-      ) : null}
-
-      {formatOpen && tab === "book" ? (
-        <FormatToolbar onApply={applyFormat} onClose={() => setFormatOpen(false)} />
-      ) : null}
-    </AppPage>
+    </DashboardShell>
   );
 }
 
-function TabButton({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <button
-      onClick={onClick}
-      className={`flex-1 rounded-lg px-3 py-2 text-xs transition-colors ${
-        active ? "bg-brand text-brand-ink" : "bg-panel text-panel-ink/70"
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  full,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  full?: boolean;
-}) {
-  return (
-    <label className={`text-xs text-ink-soft ${full ? "col-span-2" : ""}`}>
-      {label}
-      <Input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-1 h-10 rounded-lg border-rule bg-paper text-ink"
-      />
-    </label>
+    <div className="rounded-lg border border-dash-border bg-dash-surface p-4">
+      <p className="text-[0.75rem] text-dash-muted">{label}</p>
+      <p className="text-2xl font-semibold">{value}</p>
+    </div>
   );
 }
