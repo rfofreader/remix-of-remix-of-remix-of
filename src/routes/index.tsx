@@ -83,7 +83,6 @@ function HomePage() {
   return (
     <AppPage
       hideBack
-      raiseNav={!!current}
       navExtra={
         isAdmin ? (
           <Link
