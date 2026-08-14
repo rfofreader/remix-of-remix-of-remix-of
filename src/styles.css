@@ -157,6 +157,8 @@
   --font-logo: "Lyon Arabic", "IBM Plex Sans Arabic", serif;
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
+  --color-nav: var(--nav);
+  --color-nav-ink: var(--nav-ink);
   --color-dash-bg: var(--dash-bg);
   --color-dash-surface: var(--dash-surface);
   --color-dash-fg: var(--dash-fg);
