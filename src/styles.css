@@ -168,27 +168,27 @@
 }
 
 /* ---------------------------------------------------------------
- * هوية الموقع (خارج القارئ): #F5F3EF خلفية — #241C15 عناصر داكنة
+ * هوية الموقع (خارج القارئ): #F5F3EF خلفية — #171717 عناصر داكنة
  * --------------------------------------------------------------- */
 
 .site-cream {
   --paper: #f5f3ef;
-  --ink: #241c15;
-  --ink-soft: #6b6055;
-  --chrome: #241c15;
+  --ink: #171717;
+  --ink-soft: #6b6660;
+  --chrome: #171717;
   --chrome-ink: #f5f3ef;
   --rule: #e2ddd4;
-  --panel: #241c15;
+  --panel: #171717;
   --panel-ink: #f5f3ef;
   --panel-rule: #f5f3ef29;
-  --brand: #241c15;
+  --brand: #171717;
   --brand-ink: #f5f3ef;
   --dash-bg: #f5f3ef;
   --dash-surface: #ffffff;
-  --dash-fg: #241c15;
-  --dash-muted: #6b6055;
+  --dash-fg: #171717;
+  --dash-muted: #6b6660;
   --dash-border: #e2ddd4;
-  --dash-accent: #8a5a2b;
+  --dash-accent: #171717;
   --hl-yellow: oklch(0.92 0.15 95 / 55%);
   --hl-green: oklch(0.88 0.14 150 / 45%);
   --hl-blue: oklch(0.88 0.1 240 / 45%);
@@ -199,14 +199,14 @@
   --paper: #171717;
   --ink: #f0ebe2;
   --ink-soft: #a89c8d;
-  --chrome: #241c15;
+  --chrome: #171717;
   --chrome-ink: #f0ebe2;
   --rule: #2f2c28;
   --panel: #f0ebe2;
-  --panel-ink: #241c15;
-  --panel-rule: #241c1524;
+  --panel-ink: #171717;
+  --panel-rule: #17171724;
   --brand: #d9c3a3;
-  --brand-ink: #241c15;
+  --brand-ink: #171717;
   --dash-bg: #171717;
   --dash-surface: #1f1e1c;
   --dash-fg: #f0ebe2;

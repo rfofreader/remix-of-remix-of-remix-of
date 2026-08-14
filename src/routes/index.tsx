@@ -6,7 +6,6 @@ import { BookCover } from "@/components/library/BookCover";
 import { BookGrid } from "@/components/library/BookGrid";
 import { Logo } from "@/components/brand/Logo";
 import { QuoteBanner } from "@/components/home/QuoteBanner";
-import { ContinueBar } from "@/components/home/ContinueBar";
 import { CloseIcon, SearchIcon } from "@/components/icons/AppIcons";
 import {
   fetchBooks,
@@ -43,8 +42,8 @@ function HomePage() {
   const navigate = useNavigate();
   const [books, setBooks] = useState<BookWithCategory[]>([]);
   const [mine, setMine] = useState<BookWithCategory[]>([]);
-  const [progress, setProgress] = useState<Record<string, number>>({});
-  const [continueId, setContinueId] = useState<string | null>(null);
+  const [, setProgress] = useState<Record<string, number>>({});
+  const [, setContinueId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -71,7 +70,6 @@ function HomePage() {
     );
   }, [user]);
 
-  const current = books.find((book) => book.id === continueId) ?? books[0];
   const quote = quotes[new Date().getDate() % quotes.length]!;
 
   const results = useMemo(() => {
@@ -83,7 +81,6 @@ function HomePage() {
   return (
     <AppPage
       hideBack
-      raiseNav={!!current}
       navExtra={
         isAdmin ? (
           <Link
@@ -137,14 +134,6 @@ function HomePage() {
 
       <div className="h-32" />
 
-      {current ? (
-        <ContinueBar
-          bookId={current.id}
-          title={current.title}
-          author={current.author}
-          ratio={progress[current.id] ?? 0}
-        />
-      ) : null}
 
       {searchOpen ? (
         <div
