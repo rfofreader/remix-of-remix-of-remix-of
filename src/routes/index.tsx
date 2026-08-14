@@ -42,8 +42,8 @@ function HomePage() {
   const navigate = useNavigate();
   const [books, setBooks] = useState<BookWithCategory[]>([]);
   const [mine, setMine] = useState<BookWithCategory[]>([]);
-  const [progress, setProgress] = useState<Record<string, number>>({});
-  const [continueId, setContinueId] = useState<string | null>(null);
+  const [, setProgress] = useState<Record<string, number>>({});
+  const [, setContinueId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
 
