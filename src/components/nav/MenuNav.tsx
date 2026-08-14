@@ -105,7 +105,7 @@ export function MenuNav({ extra, bottomClass = "bottom-5" }: { extra?: ReactNode
 
       {extra ? <div className="pointer-events-auto mb-3 flex flex-col items-center gap-3">{extra}</div> : null}
 
-      <nav className="pointer-events-auto flex w-full items-center justify-between rounded-full bg-panel px-5 py-2.5 text-panel-ink shadow-[0_14px_28px_-16px_rgb(0_0_0/0.7)]">
+      <nav className="pointer-events-auto flex w-full items-center justify-between rounded-full bg-nav px-5 py-2.5 text-nav-ink shadow-[0_14px_28px_-16px_rgb(0_0_0/0.7)]">
         {rightItems.map((item) => (
           <NavItem key={item.to} item={item} active={isActive(item.to)} />
         ))}
