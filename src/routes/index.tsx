@@ -6,7 +6,6 @@ import { BookCover } from "@/components/library/BookCover";
 import { BookGrid } from "@/components/library/BookGrid";
 import { Logo } from "@/components/brand/Logo";
 import { QuoteBanner } from "@/components/home/QuoteBanner";
-import { ContinueBar } from "@/components/home/ContinueBar";
 import { CloseIcon, SearchIcon } from "@/components/icons/AppIcons";
 import {
   fetchBooks,
@@ -71,7 +70,6 @@ function HomePage() {
     );
   }, [user]);
 
-  const current = books.find((book) => book.id === continueId) ?? books[0];
   const quote = quotes[new Date().getDate() % quotes.length]!;
 
   const results = useMemo(() => {
