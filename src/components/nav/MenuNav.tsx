@@ -16,10 +16,10 @@ interface Item {
 /* ترتيب RTL: الرئيسية أقصى اليمين ثم رفوفي — الزر الأوسط مركز القراءة */
 const rightItems: Item[] = [
   { to: "/", label: "الرئيسية", icon: Home },
-  { to: "/shelves", label: "رفوفي", icon: Library },
+  { to: "/library", label: "استكشف", icon: Compass },
 ];
 const leftItems: Item[] = [
-  { to: "/library", label: "استكشف", icon: Compass },
+  { to: "/shelves", label: "رفوفي", icon: Library },
   { to: "/account", label: "حسابي", icon: User },
 ];
 
