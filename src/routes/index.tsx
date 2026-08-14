@@ -137,14 +137,6 @@ function HomePage() {
 
       <div className="h-32" />
 
-      {current ? (
-        <ContinueBar
-          bookId={current.id}
-          title={current.title}
-          author={current.author}
-          ratio={progress[current.id] ?? 0}
-        />
-      ) : null}
 
       {searchOpen ? (
         <div
